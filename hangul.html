@@ -72,7 +72,7 @@ padding-left:8px;
 
 .grid{
 display:grid;
-grid-template-columns:repeat(7,1fr);
+grid-template-columns:repeat(5,1fr); /* 5열로 변경하여 모음 배열을 더 깔끔하게 만듦 */
 gap:6px;
 }
 
@@ -94,7 +94,7 @@ border-color:var(--accent);
 }
 
 .btn-reset{
-grid-column:span 7;
+grid-column:span 5; /* 그리드 열 수에 맞춰 수정 */
 background:#f1f2f6;
 color:#7f8c8d;
 font-size:13px;
@@ -131,7 +131,7 @@ cursor:pointer;
     </div>
 
     <div class="grid-label">1. 자음 (Consonants)</div>
-    <div id="init-grid" class="grid"></div>
+    <div id="init-grid" class="grid" style="grid-template-columns: repeat(7, 1fr);"></div>
 
     <div class="grid-label">2. 모음 (Vowels)</div>
     <div id="vow1-grid" class="grid"></div>
@@ -139,12 +139,12 @@ cursor:pointer;
     <div id="reset-vow2" class="btn-reset" onclick="selectVow2(null)">No Second Vowel</div>
 
     <div class="grid-label">3. 받침(Final Consonant)</div>
-    <div id="batch-primary-grid" class="grid"></div>
+    <div id="batch-primary-grid" class="grid" style="grid-template-columns: repeat(7, 1fr);"></div>
 
     <div class="grid-label" style="border-left-color:#bdc3c7;color:#7f8c8d;font-size:11px;">
         Advanced / Double Batchim
     </div>
-    <div id="batch-advanced-grid" class="grid"></div>
+    <div id="batch-advanced-grid" class="grid" style="grid-template-columns: repeat(7, 1fr);"></div>
     <div id="reset-batch" class="btn-reset" onclick="selectBatch(null)">No Batchim</div>
 </div>
 
@@ -170,10 +170,10 @@ const consonantNames = {
     'ㄸ': '쌍디귿 (Ssang-di-geut)', 'ㅃ': '쌍비읍 (Ssang-bi-eup)', 'ㅆ': '쌍시옷 (Ssang-si-ot)', 'ㅉ': '쌍지읒 (Ssang-ji-eut)'
 };
 
+// 요청하신 순서대로 수정된 부분
 const vows1=[
-    {k:'ㅏ',e:'A'},{k:'ㅓ',e:'EO'},{k:'ㅗ',e:'O'},
-    {k:'ㅜ',e:'U'},{k:'ㅡ',e:'EU'},{k:'ㅣ',e:'I'},
-    {k:'ㅑ',e:'YA'},{k:'ㅕ',e:'YEO'},{k:'ㅛ',e:'YO'},{k:'ㅠ',e:'YU'}
+    {k:'ㅏ',e:'A'},{k:'ㅑ',e:'YA'},{k:'ㅓ',e:'EO'},{k:'ㅕ',e:'YEO'},{k:'ㅗ',e:'O'},
+    {k:'ㅛ',e:'YO'},{k:'ㅜ',e:'U'},{k:'ㅠ',e:'YU'},{k:'ㅡ',e:'EU'},{k:'ㅣ',e:'I'}
 ];
 
 const vows2=[{k:'ㅏ',e:'A'},{k:'ㅐ',e:'AE'},{k:'ㅓ',e:'EO'},{k:'ㅔ',e:'E'},{k:'ㅣ',e:'I'}];
@@ -198,7 +198,7 @@ const vowelMap={'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜ
 const vPronMap={'ㅏ':'A','ㅐ':'AE','ㅑ':'YA','ㅒ':'YAE','ㅓ':'EO','ㅔ':'E','ㅕ':'YEO','ㅖ':'YE','ㅗ':'O','ㅘ':'WA','ㅙ':'WAE','ㅚ':'OE','ㅛ':'YO','ㅜ':'U','ㅝ':'WO','ㅞ':'WE','ㅟ':'WI','ㅠ':'YU','ㅡ':'EU','ㅢ':'UI','ㅣ':'I'};
 
 let sInit=inits[0];
-let sVow1=null;
+let sVow1=vows1[0]; // 초기값 설정
 let sVow2=null;
 let sBatch=null;
 
@@ -304,27 +304,14 @@ function updateDisplay(char,pron,formula){
     document.getElementById("target-formula").innerText=formula;
 }
 
-// 개선된 발음 함수
 function speak(){
     const char=document.getElementById("target-char").innerText;
     const speech=new SpeechSynthesisUtterance(char);
-    
-    // 한국어 설정
     speech.lang="ko-KR";
-    
-    // 1. 발음 속도: 0.65 (약간 느리지만 너무 늘어지지 않는 수준)
     speech.rate = 0.65; 
-    
-    // 2. 음높이: 1.1 (약간 높게 설정하면 발음이 더 또렷하게 들리는 경향이 있습니다)
     speech.pitch = 1.1;
-    
-    // 3. 음량: 1.0 (최대)
     speech.volume = 1.0;
-
-    // 만약 자음 이름(예: 기역)이라면, 약간의 강조를 위해 텍스트 뒤에 마침표를 찍어 읽을 수 있습니다.
-    // 하지만 현재는 char 자체를 읽는 것이 가장 깔끔하므로 그대로 진행합니다.
-    
-    window.speechSynthesis.cancel(); // 이전 음성 중단 후 새로 시작
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(speech);
 }
 
@@ -335,10 +322,11 @@ function init(){
     renderGrid("batch-primary-grid",batchPrimary,item=>sBatch=item);
     renderGrid("batch-advanced-grid",batchAdvanced,item=>sBatch=item);
     
-    const firstInit = document.querySelector('#init-grid .key');
-    const firstVow = document.querySelector('#vow1-grid .key');
-    if(firstInit) firstInit.classList.add('selected');
-    if(firstVow) firstVow.classList.add('selected');
+    // 첫 초기값 강조 표시
+    const allInitKeys = document.querySelectorAll('#init-grid .key');
+    const allVowKeys = document.querySelectorAll('#vow1-grid .key');
+    if(allInitKeys[0]) allInitKeys[0].classList.add('selected');
+    if(allVowKeys[0]) allVowKeys[0].classList.add('selected');
     
     render();
 }
