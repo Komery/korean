@@ -1,151 +1,162 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hangeul Master v2</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangeul Master Pro (Toggle Version)</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --bg: #f8f9fa;
+            --key-bg: #ffffff;
+            --selected-bg: #e67e22;
+        }
 
-<style>
-:root{
---primary:#2c3e50;
---accent:#e67e22;
---bg:#f8f9fa;
-}
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
 
-body{
-font-family:'Segoe UI',sans-serif;
-background:var(--bg);
-margin:0;
-padding:10px;
-display:flex;
-justify-content:center;
-}
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
 
-.container{
-width:100%;
-max-width:600px;
-background:white;
-padding:25px;
-border-radius:25px;
-box-shadow:0 10px 30px rgba(0,0,0,0.1);
-}
+        .display-unit {
+            background: #fffaf0;
+            padding: 25px 15px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #ffecb3;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
 
-.display-unit{
-background:#fffaf0;
-padding:20px;
-border-radius:20px;
-text-align:center;
-border:2px solid #ffecb3;
-margin-bottom:20px;
-position:sticky;
-top:0;
-z-index:10;
-}
+        .combined-text {
+            font-size: 80px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0;
+            line-height: 1.2;
+            min-height: 96px;
+        }
 
-.combined-text{
-font-size:95px;
-font-weight:bold;
-color:var(--primary);
-margin:0;
-min-height:120px;
-}
+        .pron-main {
+            font-size: 28px;
+            color: var(--accent);
+            font-weight: bold;
+            margin-top: 5px;
+        }
 
-.pron-main{
-font-size:32px;
-color:var(--accent);
-font-weight:bold;
-}
+        .pron-formula {
+            font-size: 14px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
 
-.pron-formula{
-font-size:16px;
-color:#7f8c8d;
-}
+        .grid-label {
+            font-weight: bold;
+            margin: 20px 0 8px 0;
+            color: #34495e;
+            font-size: 14px;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
 
-.grid-label{
-font-weight:bold;
-margin:18px 0 6px 0;
-color:#555;
-font-size:13px;
-border-left:4px solid var(--accent);
-padding-left:8px;
-}
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px;
+        }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(5,1fr); /* 5열로 변경하여 모음 배열을 더 깔끔하게 만듦 */
-gap:6px;
-}
+        .key {
+            padding: 12px 0;
+            border: 1px solid #edf2f7;
+            border-radius: 12px;
+            cursor: pointer;
+            background: var(--key-bg);
+            text-align: center;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
 
-.key{
-padding:14px 0;
-border:1px solid #eee;
-border-radius:10px;
-cursor:pointer;
-background:white;
-text-align:center;
-font-weight:bold;
-font-size:18px;
-}
+        .key:hover { background: #fff5eb; border-color: var(--accent); }
 
-.key.selected{
-background:var(--accent);
-color:white;
-border-color:var(--accent);
-}
+        .key.selected {
+            background: var(--selected-bg);
+            color: white;
+            border-color: var(--selected-bg);
+            transform: scale(0.95);
+        }
 
-.btn-reset{
-grid-column:span 5; /* 그리드 열 수에 맞춰 수정 */
-background:#f1f2f6;
-color:#7f8c8d;
-font-size:13px;
-margin-top:6px;
-border:1px solid #ddd;
-padding:10px;
-text-align:center;
-border-radius:10px;
-cursor:pointer;
-font-weight:bold;
-}
+        .btn-reset {
+            grid-column: 1 / -1;
+            background: #f1f2f6;
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-.speak-btn{
-margin-top:10px;
-padding:10px 20px;
-border:none;
-background:var(--accent);
-color:white;
-font-size:14px;
-border-radius:10px;
-cursor:pointer;
-}
-</style>
+        .speak-btn {
+            margin-top: 15px;
+            padding: 12px 25px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
     <div class="display-unit">
-        <div id="target-char" class="combined-text">가</div>
-        <div id="target-pron-main" class="pron-main">GA</div>
-        <div id="target-formula" class="pron-formula">G + A = GA</div>
+        <div id="target-char" class="combined-text">-</div>
+        <div id="target-pron-main" class="pron-main">-</div>
+        <div id="target-formula" class="pron-formula">Select Init & Vowel</div>
         <button class="speak-btn" onclick="speak()">🔊 Pronounce</button>
     </div>
 
     <div class="grid-label">1. 자음 (Consonants)</div>
-    <div id="init-grid" class="grid" style="grid-template-columns: repeat(7, 1fr);"></div>
+    <div id="init-grid" class="grid"></div>
 
-    <div class="grid-label">2. 모음 (Vowels)</div>
+    <div class="grid-label">2. 기본 모음 (Basic Vowels)</div>
     <div id="vow1-grid" class="grid"></div>
+    
+    <div class="grid-label">3. 조합용 모음 (Combination)</div>
     <div id="vow2-grid" class="grid"></div>
-    <div id="reset-vow2" class="btn-reset" onclick="selectVow2(null)">No Second Vowel</div>
+    <div class="btn-reset" onclick="selectVow2(null)">Clear 2nd Vowel</div>
 
-    <div class="grid-label">3. 받침(Final Consonant)</div>
-    <div id="batch-primary-grid" class="grid" style="grid-template-columns: repeat(7, 1fr);"></div>
+    <div class="grid-label">4. 받침 (Final Consonant)</div>
+    <div id="batch-primary-grid" class="grid"></div>
 
-    <div class="grid-label" style="border-left-color:#bdc3c7;color:#7f8c8d;font-size:11px;">
-        Advanced / Double Batchim
-    </div>
-    <div id="batch-advanced-grid" class="grid" style="grid-template-columns: repeat(7, 1fr);"></div>
-    <div id="reset-batch" class="btn-reset" onclick="selectBatch(null)">No Batchim</div>
+    <div class="grid-label" style="font-size:11px; color:#7f8c8d;">Advanced Batchim</div>
+    <div id="batch-advanced-grid" class="grid"></div>
+    <div class="btn-reset" onclick="selectBatch(null)">No Batchim</div>
 </div>
 
 <script>
@@ -162,18 +173,11 @@ const inits=[
     {k:'ㅆ',e:'SS'},{k:'ㅉ',e:'JJ'}
 ];
 
-const consonantNames = {
-    'ㄱ': '기역 (Gi-yeok)', 'ㄴ': '니은 (Ni-eun)', 'ㄷ': '디귿 (Di-geut)', 'ㄹ': '리을 (Ri-eul)',
-    'ㅁ': '미음 (Mi-eum)', 'ㅂ': '비읍 (Bi-eup)', 'ㅅ': '시옷 (Si-ot)', 'ㅇ': '이응 (I-eung)',
-    'ㅈ': '지읒 (Ji-eut)', 'ㅊ': '치읓 (Chi-eut)', 'ㅋ': '키읔 (Ki-euk)', 'ㅌ': '티읕 (Ti-eut)',
-    'ㅍ': '피읖 (Pi-eup)', 'ㅎ': '히읗 (Hi-eut)', 'ㄲ': '쌍기역 (Ssang-gi-yeok)',
-    'ㄸ': '쌍디귿 (Ssang-di-geut)', 'ㅃ': '쌍비읍 (Ssang-bi-eup)', 'ㅆ': '쌍시옷 (Ssang-si-ot)', 'ㅉ': '쌍지읒 (Ssang-ji-eut)'
-};
-
-// 요청하신 순서대로 수정된 부분
+// 요청하신 순서대로 재정렬
 const vows1=[
-    {k:'ㅏ',e:'A'},{k:'ㅑ',e:'YA'},{k:'ㅓ',e:'EO'},{k:'ㅕ',e:'YEO'},{k:'ㅗ',e:'O'},
-    {k:'ㅛ',e:'YO'},{k:'ㅜ',e:'U'},{k:'ㅠ',e:'YU'},{k:'ㅡ',e:'EU'},{k:'ㅣ',e:'I'}
+    {k:'ㅏ',e:'A'},{k:'ㅑ',e:'YA'},{k:'ㅓ',e:'EO'},{k:'ㅕ',e:'YEO'},
+    {k:'ㅗ',e:'O'},{k:'ㅛ',e:'YO'},{k:'ㅜ',e:'U'},{k:'ㅠ',e:'YU'},
+    {k:'ㅡ',e:'EU'},{k:'ㅣ',e:'I'}
 ];
 
 const vows2=[{k:'ㅏ',e:'A'},{k:'ㅐ',e:'AE'},{k:'ㅓ',e:'EO'},{k:'ㅔ',e:'E'},{k:'ㅣ',e:'I'}];
@@ -197,142 +201,126 @@ const batchAdvanced=[
 const vowelMap={'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
 const vPronMap={'ㅏ':'A','ㅐ':'AE','ㅑ':'YA','ㅒ':'YAE','ㅓ':'EO','ㅔ':'E','ㅕ':'YEO','ㅖ':'YE','ㅗ':'O','ㅘ':'WA','ㅙ':'WAE','ㅚ':'OE','ㅛ':'YO','ㅜ':'U','ㅝ':'WO','ㅞ':'WE','ㅟ':'WI','ㅠ':'YU','ㅡ':'EU','ㅢ':'UI','ㅣ':'I'};
 
-let sInit=inits[0];
-let sVow1=vows1[0]; // 초기값 설정
-let sVow2=null;
-let sBatch=null;
+let sInit = null;
+let sVow1 = null;
+let sVow2 = null;
+let sBatch = null;
 
-function renderGrid(id,data,onSelect){
-    const grid=document.getElementById(id);
-    grid.innerHTML="";
-    data.forEach(item=>{
-        const btn=document.createElement("div");
-        btn.className="key";
-        btn.innerText=item.k;
-        btn.onclick=()=>handleSelection(id,item,btn,onSelect);
+function renderGrid(id, data, onSelect) {
+    const grid = document.getElementById(id);
+    grid.innerHTML = "";
+    data.forEach(item => {
+        const btn = document.createElement("div");
+        btn.className = "key";
+        btn.innerText = item.k;
+        btn.onclick = () => handleSelection(id, item, btn, onSelect);
         grid.appendChild(btn);
     });
 }
 
-function handleSelection(id,item,btn,onSelect){
-    const isSelected=btn.classList.contains("selected");
-    if(id.includes("batch")){
-        document.querySelectorAll('[id^="batch-"] .key').forEach(k=>k.classList.remove("selected"));
-    }else{
-        document.querySelectorAll(`#${id} .key`).forEach(k=>k.classList.remove("selected"));
+function handleSelection(id, item, btn, onSelect) {
+    const isAlreadySelected = btn.classList.contains("selected");
+
+    // 섹션 내 다른 버튼 해제
+    if(id.includes("batch")) {
+        document.querySelectorAll('[id^="batch-"] .key').forEach(k => k.classList.remove("selected"));
+    } else {
+        document.querySelectorAll(`#${id} .key`).forEach(k => k.classList.remove("selected"));
     }
 
-    if(isSelected){
+    if (isAlreadySelected) {
+        // 이미 선택된 걸 다시 누름 -> 취소
         btn.classList.remove("selected");
-        if(id==="init-grid") sInit={k:'',e:''};
-        if(id==="vow1-grid") sVow1=null;
-        if(id==="vow2-grid") selectVow2(null);
-        if(id.includes("batch")) selectBatch(null);
-    }else{
+        if(id === "init-grid") sInit = null;
+        if(id === "vow1-grid") sVow1 = null;
+        if(id === "vow2-grid") sVow2 = null;
+        if(id.includes("batch")) sBatch = null;
+    } else {
+        // 새로 선택
         btn.classList.add("selected");
         onSelect(item);
     }
     render();
 }
 
-function selectVow2(v){
-    sVow2=v;
-    document.querySelectorAll('#vow2-grid .key').forEach(k=>k.classList.remove("selected"));
+function selectVow2(v) {
+    sVow2 = v;
+    document.querySelectorAll('#vow2-grid .key').forEach(k => k.classList.remove("selected"));
     render();
 }
 
-function selectBatch(v){
-    sBatch=v;
-    document.querySelectorAll('[id^="batch-"] .key').forEach(k=>k.classList.remove("selected"));
+function selectBatch(v) {
+    sBatch = v;
+    document.querySelectorAll('[id^="batch-"] .key').forEach(k => k.classList.remove("selected"));
     render();
 }
 
-function getFinalVowel(){
-    if(!sVow1) return {finalV: null, formula: ""};
-    let finalV=sVow1.k;
-    let formula=sVow1.e;
-    if(sVow2){
-        const combined=sVow1.k+sVow2.k;
-        if(vowelMap[combined]){
-            finalV=vowelMap[combined];
-            formula=`${sVow1.e} + ${sVow2.e}`;
-        }else{
-            finalV=sVow2.k;
-            formula=sVow2.e;
+function getFinalVowel() {
+    if (!sVow1) return { finalV: null, formula: "" };
+    let finalV = sVow1.k;
+    let formula = sVow1.e;
+    
+    if (sVow2) {
+        const combined = sVow1.k + sVow2.k;
+        if (vowelMap[combined]) {
+            finalV = vowelMap[combined];
+            formula = `${sVow1.e} + ${sVow2.e}`;
+        } else {
+            finalV = sVow2.k;
+            formula = sVow2.e;
         }
     }
-    return{finalV,formula};
+    return { finalV, formula };
 }
 
-function calculateHangul(init,vowel,batch){
-    const iIdx=CHOSUNG.indexOf(init);
-    const vIdx=JUNGSUNG.indexOf(vowel);
-    const bIdx=batch?JONGSUNG.indexOf(batch):0;
-    if(iIdx===-1||vIdx===-1)return null;
-    const code=(iIdx*21+vIdx)*28+bIdx+0xAC00;
-    return String.fromCharCode(code);
-}
+function render() {
+    const targetChar = document.getElementById("target-char");
+    const targetPron = document.getElementById("target-pron-main");
+    const targetFormula = document.getElementById("target-formula");
 
-function render(){
-    if(sInit.k && (!sVow1 || !sVow1.k)){
-        const nameText = consonantNames[sInit.k] || sInit.k;
-        updateDisplay(sInit.k, nameText.split(' ')[0], `Name: ${nameText}`);
+    // 자음 또는 모음이 없는 경우
+    if (!sInit || !sVow1) {
+        targetChar.innerText = sInit ? sInit.k : (sVow1 ? sVow1.k : "-");
+        targetPron.innerText = "-";
+        targetFormula.innerText = "Select both Consonant & Vowel";
         return;
     }
 
-    if(!sInit.k || !sVow1 || !sVow1.k){
-        updateDisplay("？","-","Select Init & Vowel");
-        return;
-    }
-
-    const{finalV,formula}=getFinalVowel();
-    const char=calculateHangul(sInit.k, finalV, sBatch?sBatch.k:"");
-    const iP=sInit.e;
-    const vP=vPronMap[finalV]||"";
-    const bP=sBatch?sBatch.e:"";
-    const totalPron=(iP+vP+bP).toUpperCase();
-    let formulaText=`${iP||"silent"} + ${formula}`;
-    if(bP)formulaText+=` + ${bP}`;
-    formulaText+=` = ${totalPron}`;
-
-    updateDisplay(char,totalPron,formulaText);
+    const { finalV, formula } = getFinalVowel();
+    const char = String.fromCharCode((CHOSUNG.indexOf(sInit.k)*21 + JUNGSUNG.indexOf(finalV))*28 + (sBatch ? JONGSUNG.indexOf(sBatch.k) : 0) + 0xAC00);
+    
+    const iP = sInit.e;
+    const vP = vPronMap[finalV] || "";
+    const bP = sBatch ? sBatch.e : "";
+    
+    const totalPron = (iP + vP + bP).toUpperCase();
+    let formulaText = `${iP || "silent"} + ${formula}`;
+    if (bP) formulaText += ` + ${bP}`;
+    
+    targetChar.innerText = char;
+    targetPron.innerText = totalPron;
+    targetFormula.innerText = `${formulaText} = ${totalPron}`;
 }
 
-function updateDisplay(char,pron,formula){
-    document.getElementById("target-char").innerText=char;
-    document.getElementById("target-pron-main").innerText=pron;
-    document.getElementById("target-formula").innerText=formula;
-}
-
-function speak(){
-    const char=document.getElementById("target-char").innerText;
-    const speech=new SpeechSynthesisUtterance(char);
-    speech.lang="ko-KR";
-    speech.rate = 0.65; 
-    speech.pitch = 1.1;
-    speech.volume = 1.0;
+function speak() {
+    const char = document.getElementById("target-char").innerText;
+    if(char === "-" || char === "") return;
     window.speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(char);
+    speech.lang = "ko-KR";
+    speech.rate = 0.8;
     window.speechSynthesis.speak(speech);
 }
 
-function init(){
-    renderGrid("init-grid",inits,item=>sInit=item);
-    renderGrid("vow1-grid",vows1,item=>sVow1=item);
-    renderGrid("vow2-grid",vows2,item=>sVow2=item);
-    renderGrid("batch-primary-grid",batchPrimary,item=>sBatch=item);
-    renderGrid("batch-advanced-grid",batchAdvanced,item=>sBatch=item);
-    
-    // 첫 초기값 강조 표시
-    const allInitKeys = document.querySelectorAll('#init-grid .key');
-    const allVowKeys = document.querySelectorAll('#vow1-grid .key');
-    if(allInitKeys[0]) allInitKeys[0].classList.add('selected');
-    if(allVowKeys[0]) allVowKeys[0].classList.add('selected');
-    
-    render();
+function init() {
+    renderGrid("init-grid", inits, item => sInit = item);
+    renderGrid("vow1-grid", vows1, item => sVow1 = item);
+    renderGrid("vow2-grid", vows2, item => sVow2 = item);
+    renderGrid("batch-primary-grid", batchPrimary, item => sBatch = item);
+    renderGrid("batch-advanced-grid", batchAdvanced, item => sBatch = item);
 }
 
 init();
 </script>
-
 </body>
 </html>
