@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㄱ' (100 Words)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        #intro-area { text-align: left; line-height: 1.6; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-align: center; margin-bottom: 20px; }
+        .content-box { background: #f0f7ff; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-bottom: 20px; font-size: 0.95rem; }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .wrong-tag { color: var(--error); font-weight: bold; }
+        .correct-tag { color: var(--success); font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #1: 'ㄱ' (100 Words)</div>
+        <div class="content-box">
+            <b>📋 학습 내용 (Learning Contents)</b><br>
+            • Nouns: 가족 Family, 가방 Bag, 고기 Meat, 과일 Fruit<br>
+            • Places: 가게 Store, 공항 Airport, 병원 Hospital, 교실 Classroom<br>
+            • Verbs: 가다 To go, 가르치다 To teach, 기다리다 To wait<br>
+            • Time/State: 가을 Autumn, 계획 Plan, 기분 Mood, 금요일 Friday
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="header"><span>Series: <b>'ㄱ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "가게", eng: "Store", desc: "A place where items are sold." },
+        { kor: "가격", eng: "Price", desc: "The cost of an item." },
+        { kor: "가구", eng: "Furniture", desc: "Movable objects like tables or chairs." },
+        { kor: "가깝다", eng: "Near", desc: "Not far in distance." },
+        { kor: "가끔", eng: "Sometimes", desc: "Occasionally; not often." },
+        { kor: "가다", eng: "To go", desc: "To move to a destination." },
+        { kor: "가르치다", eng: "To teach", desc: "To give lessons or knowledge." },
+        { kor: "가방", eng: "Bag", desc: "A container used for carrying items." },
+        { kor: "가볍다", eng: "Light", desc: "Not heavy in weight." },
+        { kor: "가수", eng: "Singer", desc: "A person who sings professionally." },
+        { kor: "가슴", eng: "Chest", desc: "The upper front part of the body." },
+        { kor: "가요", eng: "Pop song", desc: "Popular music or songs." },
+        { kor: "가운데", eng: "Middle", desc: "The center or midway point." },
+        { kor: "가위", eng: "Scissors", desc: "A tool used for cutting." },
+        { kor: "가을", eng: "Autumn", desc: "The season after summer." },
+        { kor: "가장", eng: "Most", desc: "To the highest degree." },
+        { kor: "가족", eng: "Family", desc: "A group of related people." },
+        { kor: "가져오다", eng: "To bring", desc: "To come with something." },
+        { kor: "가져가다", eng: "To take", desc: "To carry something away." },
+        { kor: "간식", eng: "Snack", desc: "Food eaten between meals." },
+        { kor: "간호사", eng: "Nurse", desc: "A person who cares for the sick." },
+        { kor: "갈비", eng: "Ribs", desc: "Korean style grilled ribs." },
+        { kor: "갈아입다", eng: "To change clothes", desc: "To put on different clothes." },
+        { kor: "갈아타다", eng: "To transfer", desc: "To change buses or trains." },
+        { kor: "감기", eng: "Cold", desc: "A common viral infection." },
+        { kor: "감사하다", eng: "To thank", desc: "To express gratitude." },
+        { kor: "감자", eng: "Potato", desc: "A round starchy vegetable." },
+        { kor: "갑자기", eng: "Suddenly", desc: "Quickly and unexpectedly." },
+        { kor: "강", eng: "River", desc: "A large flowing body of water." },
+        { kor: "강아지", eng: "Puppy", desc: "A young or small dog." },
+        { kor: "같다", eng: "Same", desc: "Identical or similar." },
+        { kor: "걱정", eng: "Worry", desc: "Feeling anxious about something." },
+        { kor: "건강", eng: "Health", desc: "State of being free from illness." },
+        { kor: "건물", eng: "Building", desc: "A permanent structure." },
+        { kor: "걷다", eng: "To walk", desc: "To move on foot." },
+        { kor: "걸다", eng: "To hang / Call", desc: "To hang an object or dial a phone." },
+        { kor: "검정", eng: "Black", desc: "The darkest color." },
+        { kor: "결혼", eng: "Marriage", desc: "Legal union of two people." },
+        { kor: "경제", eng: "Economy", desc: "System of money and trade." },
+        { kor: "경찰", eng: "Police", desc: "Law enforcement officers." },
+        { kor: "경험", eng: "Experience", desc: "Knowledge gained from doing." },
+        { kor: "계단", eng: "Stairs", desc: "A set of steps." },
+        { kor: "계란", eng: "Egg", desc: "Oval object from a hen." },
+        { kor: "계절", eng: "Season", desc: "Spring, summer, fall, or winter." },
+        { kor: "계획", eng: "Plan", desc: "A detailed future intention." },
+        { kor: "고기", eng: "Meat", desc: "Animal flesh used as food." },
+        { kor: "고등학교", eng: "High school", desc: "School for older teenagers." },
+        { kor: "고르다", eng: "To choose", desc: "To pick or select." },
+        { kor: "고양이", eng: "Cat", desc: "A common small pet." },
+        { kor: "고향", eng: "Hometown", desc: "Where a person was born." },
+        { kor: "공부", eng: "Study", desc: "Acquiring knowledge." },
+        { kor: "공항", eng: "Airport", desc: "Place for airplanes." },
+        { kor: "공원", eng: "Park", desc: "Public area with grass and trees." },
+        { kor: "공책", eng: "Notebook", desc: "Book for writing notes." },
+        { kor: "공연", eng: "Performance", desc: "A show or concert." },
+        { kor: "과일", eng: "Fruit", desc: "Sweet plant products like apples." },
+        { kor: "과자", eng: "Cookie / Snack", desc: "Sweet or savory snack food." },
+        { kor: "과학", eng: "Science", desc: "Study of the physical world." },
+        { kor: "관심", eng: "Interest", desc: "Attention or curiosity." },
+        { kor: "광고", eng: "Advertisement", desc: "Public notice to sell items." },
+        { kor: "교통", eng: "Traffic", desc: "Vehicles on public roads." },
+        { kor: "교실", eng: "Classroom", desc: "A room for teaching students." },
+        { kor: "교수", eng: "Professor", desc: "University level teacher." },
+        { kor: "구두", eng: "Dress shoes", desc: "Formal leather shoes." },
+        { kor: "구경", eng: "Sightseeing", desc: "Looking at interesting things." },
+        { kor: "구름", eng: "Cloud", desc: "Vapor mass in the sky." },
+        { kor: "국어", eng: "National language", desc: "Korean language study." },
+        { kor: "국수", eng: "Noodles", desc: "Food made from flour strings." },
+        { kor: "국적", eng: "Nationality", desc: "Status of belonging to a nation." },
+        { kor: "군인", eng: "Soldier", desc: "A person in the military." },
+        { kor: "귀", eng: "Ear", desc: "The organ for hearing." },
+        { kor: "귀엽다", eng: "Cute", desc: "Attractive or endearing." },
+        { kor: "규칙", eng: "Rule", desc: "Instruction of what is allowed." },
+        { kor: "귤", eng: "Tangerine", desc: "A small citrus fruit." },
+        { kor: "그냥", eng: "Just / Simply", desc: "Without a special reason." },
+        { kor: "그림", eng: "Picture", desc: "A drawing or painting." },
+        { kor: "그릇", eng: "Bowl", desc: "A container for food." },
+        { kor: "그립다", eng: "To miss", desc: "Longing for someone/something." },
+        { kor: "근처", eng: "Nearby", desc: "The area around a place." },
+        { kor: "글", eng: "Writing", desc: "Written words or text." },
+        { kor: "금요일", eng: "Friday", desc: "The day after Thursday." },
+        { kor: "금방", eng: "Soon", desc: "In a very short time." },
+        { kor: "급하다", eng: "Urgent", desc: "Requiring immediate action." },
+        { kor: "기다리다", eng: "To wait", desc: "To stay until a certain time." },
+        { kor: "기분", eng: "Mood", desc: "Emotional state of mind." },
+        { kor: "기쁘다", eng: "Happy", desc: "Feeling joy or pleasure." },
+        { kor: "기차", eng: "Train", desc: "Connected vehicles on a track." },
+        { kor: "기침", eng: "Cough", desc: "Expelling air with noise." },
+        { kor: "기타", eng: "Guitar / Others", desc: "Instrument or 'etc'." },
+        { kor: "길", eng: "Road", desc: "A path for traveling." },
+        { kor: "길다", eng: "Long", desc: "Measuring great distance." },
+        { kor: "김밥", eng: "Kimbap", desc: "Korean seaweed rice roll." },
+        { kor: "김치", eng: "Kimchi", desc: "Spicy fermented vegetables." },
+        { kor: "깨끗하다", eng: "Clean", desc: "Free from dirt or stains." },
+        { kor: "꼭", eng: "Surely", desc: "Without fail." },
+        { kor: "꽃", eng: "Flower", desc: "The colorful part of a plant." },
+        { kor: "꿈", eng: "Dream", desc: "Images during sleep." },
+        { kor: "끄다", eng: "To turn off", desc: "Stop a device or light." },
+        { kor: "끝", eng: "End", desc: "The final part or finish." },
+        { kor: "끼다", eng: "To put on", desc: "To wear gloves or glasses." }
+    ];
+
+    let score = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span class="correct-tag">✔ 정답입니다! (Correct)</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span class="wrong-tag">✘ 오답입니다. (Wrong Choice)</span><br>` +
+                                       `방금 누르신 <b>'${item.kor}'</b>의 뜻은 <b style="color:#2c3e50;">'${item.eng}'</b>입니다.<br>` +
+                                       `<small>(${item.desc})</small><br><hr style="border:0; border-top:1px solid #eee; margin:10px 0;">` +
+                                       `정답은 <b class="correct-tag">'${correct.kor}'</b> (${correct.eng}) 입니다.`;
+                    
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㅋ' (100 Words with Study Guide)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 15px; }
+        .study-guide { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; line-height: 1.6; max-height: 300px; overflow-y: auto; }
+        .study-guide b { color: var(--primary); }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .progress-bar { height: 5px; background: #eee; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+        #progress { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #11: 'ㅋ' Study & Quiz</div>
+        <div class="study-guide">
+            <b>[Nouns]</b><br>
+            코(Nose), 콩(Bean), 칼(Knife), 키(Height/Key), 코끼리(Elephant), 카메라(Camera), 컴퓨터(Computer), 커피(Coffee), 케이크(Cake), 카드(Card)<br><br>
+            <b>[Verbs]</b><br>
+            켜다(Turn on), 키우다(Raise/Grow), 캐다(Dig up), 킥킥대다(Giggle), 쿵쾅거리다(Thump), 클릭하다(Click)<br><br>
+            <b>[Adjectives]</b><br>
+            크다(Big), 커다랗다(Huge), 캄캄하다(Pitch dark), 쾌적하다(Pleasant), 쿨하다(Cool)<br><br>
+            <b>[Others]</b><br>
+            크게(Loudly), 퀴즈(Quiz), 커플(Couple), 컬러(Color), 코스(Course)
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start 100-Word Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="progress-bar"><div id="progress"></div></div>
+        <div class="header"><span>Series: <b>'ㅋ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "카드", eng: "Card", desc: "Plastic or paper card (credit/greeting)." },
+        { kor: "카메라", eng: "Camera", desc: "Device for taking photos." },
+        { kor: "카레", eng: "Curry", desc: "Spiced dish with sauce." },
+        { kor: "카운터", eng: "Counter", desc: "Service desk in a shop." },
+        { kor: "카트", eng: "Cart", desc: "Shopping cart or racing cart." },
+        { kor: "카페", eng: "Cafe", desc: "Place to drink coffee." },
+        { kor: "카펫", eng: "Carpet", desc: "Fabric floor covering." },
+        { kor: "칸", eng: "Space / Room", desc: "A section or blank box." },
+        { kor: "칼", eng: "Knife", desc: "Tool for cutting." },
+        { kor: "칼국수", eng: "Kalguksu", desc: "Korean hand-cut noodle soup." },
+        { kor: "캐릭터", eng: "Character", desc: "Mascot or story person." },
+        { kor: "캐리어", eng: "Suitcase", desc: "Rolling luggage for travel." },
+        { kor: "캠핑", eng: "Camping", desc: "Outdoor tent activity." },
+        { kor: "커다랗다", eng: "To be huge", desc: "Very big in size." },
+        { kor: "커피", eng: "Coffee", desc: "Caffeinated beverage." },
+        { kor: "커튼", eng: "Curtain", desc: "Window covering." },
+        { kor: "커플", eng: "Couple", desc: "Two people in a relationship." },
+        { kor: "커리어", eng: "Career", desc: "Professional path." },
+        { kor: "컨디션", eng: "Condition", desc: "State of health or mind." },
+        { kor: "컴퓨터", eng: "Computer", desc: "Electronic data device." },
+        { kor: "컵", eng: "Cup", desc: "Drinking container." },
+        { kor: "케이크", eng: "Cake", desc: "Sweet baked dessert." },
+        { kor: "케첩", eng: "Ketchup", desc: "Tomato sauce." },
+        { kor: "켜다", eng: "To turn on", desc: "Starting a light or device." },
+        { kor: "코", eng: "Nose", desc: "Face part for smelling." },
+        { kor: "코끼리", eng: "Elephant", desc: "Large animal with a trunk." },
+        { kor: "코트", eng: "Coat", desc: "Warm outer garment." },
+        { kor: "코너", eng: "Corner", desc: "Where two edges meet." },
+        { kor: "코미디", eng: "Comedy", desc: "Humorous show or movie." },
+        { kor: "코치", eng: "Coach", desc: "Sports instructor." },
+        { kor: "콜라", eng: "Cola", desc: "Carbonated black soda." },
+        { kor: "콘서트", eng: "Concert", desc: "Musical performance." },
+        { kor: "콘센트", eng: "Outlet", desc: "Electric wall socket." },
+        { kor: "콩", eng: "Bean", desc: "Edible plant seed." },
+        { kor: "콩나물", eng: "Bean sprouts", desc: "Sprouted beans for soup/sides." },
+        { kor: "쿠키", eng: "Cookie", desc: "Small sweet baked treat." },
+        { kor: "퀴즈", eng: "Quiz", desc: "Knowledge test." },
+        { kor: "크게", eng: "Loudly", desc: "In a loud or big manner." },
+        { kor: "크다", eng: "To be big", desc: "Large size or height." },
+        { kor: "크기", eng: "Size", desc: "Dimensions of something." },
+        { kor: "크리스마스", eng: "Christmas", desc: "Holiday on Dec 25th." },
+        { kor: "크림", eng: "Cream", desc: "Thick dairy or lotion." },
+        { kor: "클래식", eng: "Classic", desc: "Classical music or style." },
+        { kor: "클럽", eng: "Club", desc: "Dance spot or organization." },
+        { kor: "클릭", eng: "Click", desc: "Pressing mouse button." },
+        { kor: "키", eng: "Height / Key", desc: "How tall one is or lock tool." },
+        { kor: "키스", eng: "Kiss", desc: "Touching with lips." },
+        { kor: "키우다", eng: "To raise", desc: "Nurturing pet or plant." },
+        { kor: "키보드", eng: "Keyboard", desc: "Device for typing." },
+        { kor: "킬로그램", eng: "Kilogram", desc: "Unit of weight." },
+        { kor: "캐다", eng: "To dig up", desc: "Extracting from ground." },
+        { kor: "콧물", eng: "Runny nose", desc: "Nasal mucus." },
+        { kor: "콧노래", eng: "Humming", desc: "Singing with closed lips." },
+        { kor: "캄캄하다", eng: "To be pitch dark", desc: "Totally dark." },
+        { kor: "쿨쿨", eng: "Sound of snoring", desc: "Deep sleep sound." },
+        { kor: "킥킥대다", eng: "To giggle", desc: "Laughing quietly." },
+        { kor: "쿵쾅거리다", eng: "To thump", desc: "Sound of pounding steps." },
+        { kor: "쾌적하다", eng: "To be pleasant", desc: "Comfortable and airy." },
+        { kor: "크레인", eng: "Crane", desc: "Machine for lifting." },
+        { kor: "콘도", eng: "Resort", desc: "Vacation housing." },
+        { kor: "쿠폰", eng: "Coupon", desc: "Discount voucher." },
+        { kor: "컬러", eng: "Color", desc: "Visual hue (red, blue, etc)." },
+        { kor: "커트", eng: "Cut", desc: "Haircut or editing." },
+        { kor: "콜레스테롤", eng: "Cholesterol", desc: "Fatty blood substance." },
+        { kor: "콤플렉스", eng: "Complex", desc: "Personal insecurity." },
+        { kor: "큐", eng: "Cue", desc: "Signal to start." },
+        { kor: "키즈", eng: "Kids", desc: "Children." },
+        { kor: "카지노", eng: "Casino", desc: "Gambling house." },
+        { kor: "카탈로그", eng: "Catalog", desc: "List of items." },
+        { kor: "칵테일", eng: "Cocktail", desc: "Mixed drink." },
+        { kor: "캡슐", eng: "Capsule", desc: "Pill or small container." },
+        { kor: "컨셉", eng: "Concept", desc: "Theme or idea." },
+        { kor: "크루즈", eng: "Cruise", desc: "Vacation on ship." },
+        { kor: "클로즈업", eng: "Close-up", desc: "Zoomed-in shot." },
+        { kor: "킬로미터", eng: "Kilometer", desc: "Distance unit." },
+        { kor: "코골이", eng: "Snoring", desc: "Sleeping noise." },
+        { kor: "캐치", eng: "Catch", desc: "To capture." },
+        { kor: "킹", eng: "King", desc: "Male ruler." },
+        { kor: "코스", eng: "Course", desc: "Path or set of meals." },
+        { kor: "크레파스", eng: "Crayons", desc: "Coloring sticks." },
+        { kor: "클리닉", eng: "Clinic", desc: "Medical facility." },
+        { kor: "커뮤니티", eng: "Community", desc: "Social group." },
+        { kor: "카누", eng: "Canoe", desc: "Narrow boat." },
+        { kor: "컴백", eng: "Comeback", desc: "Returning to stage." },
+        { kor: "카리스마", eng: "Charisma", desc: "Strong charm." },
+        { kor: "커튼콜", eng: "Curtain call", desc: "Final bow after show." },
+        { kor: "커버", eng: "Cover", desc: "Lid or protective layer." },
+        { kor: "컬렉션", eng: "Collection", desc: "Gathered items." },
+        { kor: "컴플레인", eng: "Complaint", desc: "Expression of dissatisfaction." },
+        { kor: "케어", eng: "Care", desc: "Looking after someone." },
+        { kor: "케이블", eng: "Cable", desc: "Thick wire." },
+        { kor: "코너킥", eng: "Corner kick", desc: "Soccer restart." },
+        { kor: "코발트", eng: "Cobalt", desc: "A deep blue color." },
+        { kor: "코어", eng: "Core", desc: "Central part." },
+        { kor: "코코아", eng: "Cocoa", desc: "Chocolate drink." },
+        { kor: "콘셉트", eng: "Concept", desc: "Standard spelling for concept." },
+        { kor: "퀄리티", eng: "Quality", desc: "Degree of excellence." },
+        { kor: "큐티", eng: "Cutie", desc: "Adorable person." },
+        { kor: "클래스", eng: "Class", desc: "Lesson or social rank." },
+        { kor: "클린", eng: "Clean", desc: "Free from dirt." }
+    ];
+
+    let score = 0;
+    let currentIdx = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (currentIdx >= 100) {
+            alert("축하합니다! 'ㅋ' 파트 100단어를 완벽하게 정복하셨습니다!");
+            return;
+        }
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span style="color:var(--success); font-weight:bold;">✔ Correct!</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span style="color:var(--error); font-weight:bold;">✘ Wrong</span><br><b>'${item.kor}'</b> is <b>'${item.eng}'</b>.<br>Correct answer: <b style="color:var(--success);">'${correct.kor}'</b>`;
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+                currentIdx++;
+                document.getElementById('progress').style.width = (currentIdx / 100 * 100) + "%";
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

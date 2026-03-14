@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㅍ' (100 Words with Study Guide)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 15px; }
+        .study-guide { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; line-height: 1.6; max-height: 300px; overflow-y: auto; }
+        .study-guide b { color: var(--primary); }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .progress-bar { height: 5px; background: #eee; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+        #progress { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #13: 'ㅍ' Study & Quiz</div>
+        <div class="study-guide">
+            <b>[Nouns]</b><br>
+            편지(Letter), 피자(Pizza), 포도(Grape), 포크(Fork), 파도(Wave), 평화(Peace), 표(Ticket), 팔(Arm), 피부(Skin), 파티(Party)<br><br>
+            <b>[Verbs]</b><br>
+            팔다(Sell), 피다(Bloom), 피우다(Smoke), 퍼지다(Spread), 피하다(Avoid), 포기하다(Give up), 표현하다(Express)<br><br>
+            <b>[Adjectives]</b><br>
+            편하다(Comfortable), 편리하다(Convenient), 피곤하다(Tired), 파랗다(Blue), 평범하다(Ordinary)<br><br>
+            <b>[Others]</b><br>
+            푹(Deeply), 펑펑(Snowing hard), 팍팍(Strongly), 필히(Necessarily), 프랑스(France)
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start 100-Word Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="progress-bar"><div id="progress"></div></div>
+        <div class="header"><span>Series: <b>'ㅍ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "파", eng: "Green onion", desc: "Long green vegetable used in cooking." },
+        { kor: "파다", eng: "To dig", desc: "Making a hole in the ground." },
+        { kor: "파도", eng: "Wave", desc: "Moving ridge of water on the sea." },
+        { kor: "파랗다", eng: "To be blue", desc: "Color of the clear sky." },
+        { kor: "파리", eng: "Fly / Paris", desc: "Small insect or the capital of France." },
+        { kor: "파티", eng: "Party", desc: "Social gathering for celebration." },
+        { kor: "판", eng: "Board / Plate", desc: "Flat surface or counter for games." },
+        { kor: "판다", eng: "To sell / Panda", desc: "To exchange for money or a bear." },
+        { kor: "판매", eng: "Selling", desc: "The act of offering for sale." },
+        { kor: "팔", eng: "Arm / Eight", desc: "Upper limb or the number 8." },
+        { kor: "팔다", eng: "To sell", desc: "Opposite of 'buy'." },
+        { kor: "팔리다", eng: "To be sold", desc: "Passive form of selling." },
+        { kor: "패션", eng: "Fashion", desc: "Popular style of clothes." },
+        { kor: "퍼지다", eng: "To spread", desc: "Expanding or becoming widely known." },
+        { kor: "페이지", eng: "Page", desc: "One side of a leaf of paper." },
+        { kor: "펜", eng: "Pen", desc: "Writing instrument." },
+        { kor: "펴다", eng: "To unfold / spread", desc: "Opening a book or smoothing wrinkles." },
+        { kor: "편", eng: "Side / Direction", desc: "A particular team or way." },
+        { kor: "편리하다", eng: "To be convenient", desc: "Easy to use." },
+        { kor: "편안하다", eng: "To be comfortable", desc: "Feeling relaxed and at ease." },
+        { kor: "편의점", eng: "Convenience store", desc: "Shop open 24 hours." },
+        { kor: "편지", eng: "Letter", desc: "Written message to someone." },
+        { kor: "편하다", eng: "To be easy / comfortable", desc: "Not difficult or physically relaxed." },
+        { kor: "평가", eng: "Evaluation", desc: "Judging the value of something." },
+        { kor: "평범하다", eng: "To be ordinary", desc: "Not special or common." },
+        { kor: "평소", eng: "Ordinary times", desc: "One's usual state." },
+        { kor: "평일", eng: "Weekday", desc: "Days from Monday to Friday." },
+        { kor: "평화", eng: "Peace", desc: "Freedom from war or disturbance." },
+        { kor: "포기하다", eng: "To give up", desc: "Stopping an effort." },
+        { kor: "포도", eng: "Grape", desc: "Small purple or green fruit." },
+        { kor: "포스터", eng: "Poster", desc: "Large printed picture." },
+        { kor: "포장", eng: "Packaging", desc: "Wrapping an item." },
+        { kor: "포함하다", eng: "To include", desc: "Having something as part of a whole." },
+        { kor: "포크", eng: "Fork", desc: "Eating utensil with prongs." },
+        { kor: "폭폭", eng: "Sound of steaming", desc: "Or heavy snow/crying." },
+        { kor: "표", eng: "Ticket", desc: "Pass for transport or entry." },
+        { kor: "표면", eng: "Surface", desc: "The outer layer." },
+        { kor: "표정", eng: "Facial expression", desc: "Look on one's face." },
+        { kor: "표현하다", eng: "To express", desc: "Showing feelings or thoughts." },
+        { kor: "푹", eng: "Deeply / Well", desc: "Resting or sleeping thoroughly." },
+        { kor: "풀", eng: "Grass / Glue", desc: "Green ground plant or adhesive." },
+        { kor: "풀다", eng: "To untie / solve", desc: "Solving a quiz or undoing a knot." },
+        { kor: "풍경", eng: "Landscape / Scenery", desc: "Natural view." },
+        { kor: "풍선", eng: "Balloon", desc: "Rubber bag filled with air." },
+        { kor: "프랑스", eng: "France", desc: "European country." },
+        { kor: "프로그램", eng: "Program", desc: "Planned series of events or software." },
+        { kor: "피", eng: "Blood", desc: "Red fluid in the body." },
+        { kor: "피곤하다", eng: "To be tired", desc: "Feeling exhausted." },
+        { kor: "피다", eng: "To bloom", desc: "A flower opening up." },
+        { kor: "피부", eng: "Skin", desc: "Outer covering of the body." },
+        { kor: "피아노", eng: "Piano", desc: "Musical instrument with keys." },
+        { kor: "피우다", eng: "To light / smoke", desc: "Smoking a cigarette or lighting a fire." },
+        { kor: "피자", eng: "Pizza", desc: "Italian flatbread dish." },
+        { kor: "피해", eng: "Damage / Harm", desc: "Suffering loss or injury." },
+        { kor: "피하다", eng: "To avoid", desc: "Keeping away from something." },
+        { kor: "필름", eng: "Film", desc: "Material for photos or movies." },
+        { kor: "필수", eng: "Essential / Required", desc: "Something that must be done." },
+        { kor: "필요하다", eng: "To need", desc: "Wanting something necessary." },
+        { kor: "필통", eng: "Pencil case", desc: "Case for writing tools." },
+        { kor: "패배", eng: "Defeat", desc: "Losing a game or battle." },
+        { kor: "파괴", eng: "Destruction", desc: "Breaking something down." },
+        { kor: "파견", eng: "Dispatch", desc: "Sending someone on a mission." },
+        { kor: "판결", eng: "Judgment / Verdict", desc: "Court decision." },
+        { kor: "판단", eng: "Judgment", desc: "Forming an opinion." },
+        { kor: "패스트푸드", eng: "Fast food", desc: "Quick-service food." },
+        { kor: "팩", eng: "Pack", desc: "Face mask or container." },
+        { kor: "퍼센트", eng: "Percent", desc: "Percentage unit." },
+        { kor: "펀치", eng: "Punch", desc: "Hitting with a fist." },
+        { kor: "펑펑", eng: "Heavily", desc: "Crying or snowing hard." },
+        { kor: "편견", eng: "Prejudice", desc: "Unfair bias." },
+        { kor: "편식", eng: "Picky eating", desc: "Eating only certain foods." },
+        { kor: "편집", eng: "Editing", desc: "Modifying video or text." },
+        { kor: "평균", eng: "Average", desc: "Middle value." },
+        { kor: "평등", eng: "Equality", desc: "Same status/rights." },
+        { kor: "포근하다", eng: "To be cozy", desc: "Warm and soft." },
+        { kor: "포도주", eng: "Wine", desc: "Alcohol from grapes." },
+        { kor: "포르투갈", eng: "Portugal", desc: "European country." },
+        { kor: "포즈", eng: "Pose", desc: "Position for a photo." },
+        { kor: "포화", eng: "Saturation", desc: "Being full to capacity." },
+        { kor: "폭력", eng: "Violence", desc: "Physical force." },
+        { kor: "폭발", eng: "Explosion", desc: "Sudden bursting." },
+        { kor: "표준", eng: "Standard", desc: "Normal level/norm." },
+        { kor: "표지판", eng: "Signboard", desc: "Road or information sign." },
+        { kor: "푸르다", eng: "To be green/blue", desc: "Color of grass/ocean." },
+        { kor: "품질", eng: "Quality", desc: "Standard of a product." },
+        { kor: "풍부하다", eng: "To be abundant", desc: "Having plenty of." },
+        { kor: "풍습", eng: "Custom", desc: "Traditional practice." },
+        { kor: "퓨전", eng: "Fusion", desc: "Mixing different styles." },
+        { kor: "프라이팬", eng: "Frying pan", desc: "Cooking tool." },
+        { kor: "프린터", eng: "Printer", desc: "Machine for printing." },
+        { kor: "피난", eng: "Evacuation", desc: "Escaping danger." },
+        { kor: "피로", eng: "Fatigue", desc: "Feeling very tired." },
+        { kor: "피리", eng: "Flute / Pipe", desc: "Small wind instrument." },
+        { kor: "필기", eng: "Note-taking", desc: "Writing down during class." },
+        { kor: "필요", eng: "Necessity", desc: "State of needing." },
+        { kor: "팍팍", eng: "Strongly", desc: "Giving force or energy." },
+        { kor: "품", eng: "Effort / Bossom", desc: "Work put in or chest area." },
+        { kor: "핑계", eng: "Excuse", desc: "Reason to hide failure." },
+        { kor: "필사적", eng: "Desperate", desc: "Giving one's all." },
+        { kor: "패키지", eng: "Package", desc: "Bundle or wrapped set." }
+    ];
+
+    let score = 0;
+    let currentIdx = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (currentIdx >= 100) {
+            alert("완벽합니다! 'ㅍ' 파트 100단어 클리어!");
+            return;
+        }
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span style="color:var(--success); font-weight:bold;">✔ Correct!</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span style="color:var(--error); font-weight:bold;">✘ Wrong</span><br><b>'${item.kor}'</b> is <b>'${item.eng}'</b>.<br>Correct answer: <b style="color:var(--success);">'${correct.kor}'</b>`;
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+                currentIdx++;
+                document.getElementById('progress').style.width = (currentIdx / 100 * 100) + "%";
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

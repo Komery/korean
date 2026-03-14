@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Master Quiz Vol.2</title>
+    <style>
+        :root { --primary: #0984e3; --success: #00b894; --error: #d63031; --bg: #dfe6e9; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 550px; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
+        .intro-title { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 15px; }
+        .guide-box { text-align: left; background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 25px; font-size: 0.95rem; line-height: 1.6; border: 1px solid #e9ecef; }
+        .eng-desc { color: #636e72; font-style: italic; margin-bottom: 10px; display: block; border-left: 3px solid #b2bec3; padding-left: 10px; }
+        .start-btn { width: 100%; padding: 20px; border: none; border-radius: 15px; background: var(--primary); color: white; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        #quiz-area { display: none; }
+        .progress-container { height: 8px; background: #eee; border-radius: 4px; margin-bottom: 20px; }
+        #progress-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.4s; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; color: #636e72; }
+        .eng-word { font-size: 2.2rem; font-weight: 800; color: #2d3436; margin: 30px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #dfe6e9; padding: 15px; border-radius: 12px; font-size: 1.15rem; cursor: pointer; text-align: left; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 20px; padding: 20px; border-radius: 15px; background-color: #f1f2f6; border: 1px solid #dfe6e9; font-size: 1rem; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 18px; border: none; border-radius: 15px; background: #2d3436; color: white; font-size: 1.1rem; display: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Essential 200: Vol.2</div>
+        <div class="guide-box">
+            <span class="eng-desc">Ready for the next level? Here are 200 NEW essential words. All words are shuffled randomly.</span>
+            <b>[Instructions]</b><br>
+            • Choose the correct Korean word for the English meaning.<br>
+            • If you miss, we'll show the meaning of the word you selected.
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start Challenge</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="progress-container"><div id="progress-fill"></div></div>
+        <div class="header"><span>Q: <b id="count">0</b>/200</span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        // ㄱ (New)
+        { kor: "가게", eng: "Store / Shop", desc: "A place where goods are sold." },
+        { kor: "가격", eng: "Price", desc: "The amount of money expected for payment." },
+        { kor: "가구", eng: "Furniture", desc: "Large movable equipment like tables/chairs." },
+        { kor: "가깝다", eng: "To be close", desc: "Not far in distance or time." },
+        { kor: "가볍다", eng: "To be light", desc: "Not heavy." },
+        { kor: "가운데", eng: "Middle / Center", desc: "The central part or position." },
+        { kor: "가위", eng: "Scissors", desc: "An instrument used for cutting." },
+        { kor: "가장", eng: "Most", desc: "To the greatest degree." },
+        { kor: "가지다", eng: "To have / possess", desc: "To own or hold something." },
+        { kor: "간단하다", eng: "To be simple", desc: "Easy to understand or do." },
+        { kor: "간식", eng: "Snack", desc: "Small amount of food eaten between meals." },
+        { kor: "간호사", eng: "Nurse", desc: "A person trained to care for the sick." },
+        { kor: "갈비", eng: "Ribs", desc: "A type of Korean meat dish." },
+        { kor: "갈아입다", eng: "To change clothes", desc: "To put on different clothes." },
+        { kor: "갈아타다", eng: "To transfer", desc: "To change to another bus/train." },
+        // ㄴ (New)
+        { kor: "나누다", eng: "To divide / share", desc: "To split into parts or share with others." },
+        { kor: "나오다", eng: "To come out", desc: "To move from inside to outside." },
+        { kor: "나타나다", eng: "To appear", desc: "To become visible." },
+        { kor: "날아가다", eng: "To fly away", desc: "To move through the air." },
+        { kor: "남기다", eng: "To leave (behind)", desc: "To not finish or take everything." },
+        { kor: "남다", eng: "To remain", desc: "To be left over." },
+        { kor: "냄새", eng: "Smell / Odor", desc: "A scent sensed by the nose." },
+        { kor: "냉장고", eng: "Refrigerator", desc: "Appliance for keeping food cold." },
+        { kor: "너구리", eng: "Raccoon dog", desc: "A small mammal found in East Asia." },
+        { kor: "넘어지다", eng: "To fall down", desc: "To lose balance and hit the ground." },
+        { kor: "넥타이", eng: "Necktie", desc: "A band of fabric worn around the neck." },
+        { kor: "노랗다", eng: "To be yellow", desc: "Having the color of a lemon." },
+        { kor: "놀다", eng: "To play", desc: "To enjoy oneself or have fun." },
+        { kor: "놀라다", eng: "To be surprised", desc: "Feeling shock or wonder." },
+        { kor: "농구", eng: "Basketball", desc: "A game played with a hoop and ball." },
+        // ㄷ (New)
+        { kor: "다르다", eng: "To be different", desc: "Not the same." },
+        { kor: "다치다", eng: "To get hurt", desc: "To receive a physical injury." },
+        { kor: "닦다", eng: "To wipe / brush", desc: "To clean by rubbing." },
+        { kor: "단순하다", eng: "To be simple", desc: "Not complex or complicated." },
+        { kor: "달걀", eng: "Egg", desc: "An oval object laid by a hen." },
+        { kor: "달력", eng: "Calendar", desc: "A chart showing days/months." },
+        { kor: "달리다", eng: "To run", desc: "To move fast on foot." },
+        { kor: "담다", eng: "To put in", desc: "To place something in a container." },
+        { kor: "대답하다", eng: "To answer", desc: "To reply to a question." },
+        { kor: "대부분", eng: "Mostly / Majority", desc: "More than half of something." },
+        { kor: "던지다", eng: "To throw", desc: "To propel through the air." },
+        { kor: "도착하다", eng: "To arrive", desc: "To reach a destination." },
+        { kor: "돈", eng: "Money", desc: "Currency used to buy things." },
+        { kor: "돌다", eng: "To turn / spin", desc: "To move in a circle." },
+        { kor: "돕다", eng: "To help", desc: "To assist someone." },
+        // ㄹ (New)
+        { kor: "레스토랑", eng: "Restaurant", desc: "A place where people pay to eat." },
+        { kor: "렌즈", eng: "Lens", desc: "Glass for cameras or eyes." },
+        { kor: "로션", eng: "Lotion", desc: "Liquid for the skin." },
+        { kor: "로그인", eng: "Log-in", desc: "Accessing a computer system." },
+        { kor: "리듬", eng: "Rhythm", desc: "A strong, regular repeated pattern." },
+        { kor: "리더", eng: "Leader", desc: "The person who leads a group." },
+        { kor: "리뷰", eng: "Review", desc: "A formal assessment or opinion." },
+        { kor: "리필", eng: "Refill", desc: "Filling a container again." },
+        { kor: "링거", eng: "IV / Ringer", desc: "Intravenous fluid drip." },
+        { kor: "리조트", eng: "Resort", desc: "A place for holidays/recreation." },
+        // ㅁ (New)
+        { kor: "마중", eng: "Meeting / Greeting", desc: "Going out to meet someone arriving." },
+        { kor: "마치다", eng: "To finish", desc: "To complete an action." },
+        { kor: "만지다", eng: "To touch", desc: "To feel something with the hands." },
+        { kor: "말씀", eng: "Speech (honorific)", desc: "Formal way to say words." },
+        { kor: "맑다", eng: "To be clear", desc: "Free from clouds or dirt." },
+        { kor: "매우", eng: "Very", desc: "To a high degree." },
+        { kor: "매점", eng: "Snack bar", desc: "A small shop selling snacks." },
+        { kor: "매듭", eng: "Knot", desc: "A fastening made by tying string." },
+        { kor: "먼지", eng: "Dust", desc: "Fine dry powder in the air." },
+        { kor: "멀다", eng: "To be far", desc: "A long distance away." },
+        { kor: "멀미", eng: "Motion sickness", desc: "Nausea caused by motion." },
+        { kor: "멈추다", eng: "To stop", desc: "To cease moving." },
+        { kor: "메뉴", eng: "Menu", desc: "List of food options." },
+        { kor: "메모", eng: "Memo", desc: "A brief note." },
+        { kor: "무겁다", eng: "To be heavy", desc: "Difficult to lift." },
+        // ㅂ (New)
+        { kor: "바꾸다", eng: "To change / exchange", desc: "To replace one thing with another." },
+        { kor: "바닥", eng: "Floor", desc: "The bottom surface of a room." },
+        { kor: "바람", eng: "Wind", desc: "Natural movement of the air." },
+        { kor: "바르다", eng: "To apply / spread", desc: "To put cream/glue on a surface." },
+        { kor: "반갑다", eng: "To be glad", desc: "Feeling happy to see someone." },
+        { kor: "반지", eng: "Ring", desc: "Jewelry worn on a finger." },
+        { kor: "발", eng: "Foot", desc: "Body part at the end of the leg." },
+        { kor: "발가락", eng: "Toes", desc: "Digits on the foot." },
+        { kor: "발표", eng: "Presentation", desc: "Giving information to an audience." },
+        { kor: "밝다", eng: "To be bright", desc: "Having lots of light." },
+        { kor: "방금", eng: "Just now", desc: "A very short time ago." },
+        { kor: "방법", eng: "Method / Way", desc: "How to do something." },
+        { kor: "방학", eng: "School vacation", desc: "Break period for schools." },
+        { kor: "배달", eng: "Delivery", desc: "Bringing goods to a person." },
+        { kor: "배구", eng: "Volleyball", desc: "A game played over a net." },
+        // ㅅ (New)
+        { kor: "사다리", eng: "Ladder", desc: "Equipment for climbing up." },
+        { kor: "사탕", eng: "Candy", desc: "A sweet food made of sugar." },
+        { kor: "사이드", eng: "Side", desc: "An edge or boundary." },
+        { kor: "상쾌하다", eng: "Refreshing", desc: "Feeling fresh and cool." },
+        { kor: "새벽", eng: "Dawn", desc: "The first light of day." },
+        { kor: "샌드위치", eng: "Sandwich", desc: "Food with bread slices." },
+        { kor: "생신", eng: "Birthday (honorific)", desc: "Polite way to say birthday." },
+        { kor: "샤워", eng: "Shower", desc: "Washing under a spray of water." },
+        { kor: "서류", eng: "Document", desc: "Official paper or file." },
+        { kor: "선생님", eng: "Teacher", desc: "A person who educates." },
+        { kor: "선풍기", eng: "Electric fan", desc: "Device to cool with air." },
+        { kor: "설탕", eng: "Sugar", desc: "Sweet crystalline substance." },
+        { kor: "성함", eng: "Name (honorific)", desc: "Polite way to ask name." },
+        { kor: "세탁기", eng: "Washing machine", desc: "Appliance to wash clothes." },
+        { kor: "소리", eng: "Sound / Noise", desc: "Vibrations heard by ears." },
+        // ㅇ (New)
+        { kor: "아래", eng: "Below / Under", desc: "In a lower position." },
+        { kor: "아름답다", eng: "To be beautiful", desc: "Pleasing to the senses." },
+        { kor: "아마", eng: "Maybe / Perhaps", desc: "Possibly." },
+        { kor: "아이스크림", eng: "Ice cream", desc: "Sweet frozen food." },
+        { kor: "아주", eng: "Very", desc: "Extremely." },
+        { kor: "아파트", eng: "Apartment", desc: "A suite of rooms for living." },
+        { kor: "안내", eng: "Guidance", desc: "Providing information." },
+        { kor: "안전", eng: "Safety", desc: "Being protected from danger." },
+        { kor: "양파", eng: "Onion", desc: "A strong-tasting vegetable." },
+        { kor: "약", eng: "Medicine / About", desc: "Drug for healing or roughly." },
+        { kor: "어둡다", eng: "To be dark", desc: "Having little or no light." },
+        { kor: "어렵다", eng: "To be difficult", desc: "Hard to do or understand." },
+        { kor: "어린이", eng: "Child", desc: "A young human being." },
+        { kor: "어머니", eng: "Mother", desc: "Formal way to say mom." },
+        { kor: "어깨", eng: "Shoulder", desc: "Joint connecting arm to torso." },
+        // ㅈ (New)
+        { kor: "자기소개", eng: "Self-introduction", desc: "Introducing oneself." },
+        { kor: "자료", eng: "Data / Materials", desc: "Information for reference." },
+        { kor: "자세히", eng: "In detail", desc: "Looking at small parts." },
+        { kor: "자연", eng: "Nature", desc: "The physical world around us." },
+        { kor: "자주", eng: "Often", desc: "Many times." },
+        { kor: "작업", eng: "Work / Job", desc: "Specific task or activity." },
+        { kor: "잔", eng: "Glass / Cup", desc: "Container for liquids." },
+        { kor: "잠깐", eng: "A moment", desc: "A short period of time." },
+        { kor: "장갑", eng: "Gloves", desc: "Coverings for the hands." },
+        { kor: "재미있다", eng: "Fun / Interesting", desc: "Enjoyable." },
+        { kor: "저렴하다", eng: "Cheap / Inexpensive", desc: "Low in price." },
+        { kor: "전공", eng: "Major (study)", desc: "Specialized field of study." },
+        { kor: "전통", eng: "Tradition", desc: "Long-established custom." },
+        { kor: "정답", eng: "Correct answer", desc: "The right response." },
+        { kor: "조용하다", eng: "To be quiet", desc: "Making little noise." },
+        // ㅊ (New)
+        { kor: "차갑다", eng: "To be cold", desc: "Feeling cold to the touch." },
+        { kor: "착하다", eng: "To be kind / good", desc: "Having a good personality." },
+        { kor: "참석하다", eng: "To attend", desc: "To be present at an event." },
+        { kor: "창고", eng: "Warehouse", desc: "Building for storing goods." },
+        { kor: "채소", eng: "Vegetable", desc: "Plant used for food." },
+        { kor: "책상", eng: "Desk", desc: "Table used for working." },
+        { kor: "처음", eng: "Beginning / First", desc: "Starting point." },
+        { kor: "천천히", eng: "Slowly", desc: "Not quickly." },
+        { kor: "첫째", eng: "The first", desc: "Number one in a list." },
+        { kor: "청소기", eng: "Vacuum cleaner", desc: "Device to clean floors." },
+        { kor: "초대하다", eng: "To invite", desc: "Asking someone to come." },
+        { kor: "축하하다", eng: "To celebrate", desc: "Saying 'Congratulations'." },
+        { kor: "출근", eng: "Going to work", desc: "Commuting to the job." },
+        { kor: "출발", eng: "Departure", desc: "Setting out on a journey." },
+        { kor: "취직", eng: "Getting a job", desc: "Finding employment." },
+        // ㅋ (New)
+        { kor: "카드", eng: "Card", desc: "Debit/Credit/Greeting card." },
+        { kor: "카레", eng: "Curry", desc: "Spicy dish with sauce." },
+        { kor: "카운터", eng: "Counter", desc: "Table at a shop for paying." },
+        { kor: "코끼리", eng: "Elephant", desc: "Largest land mammal." },
+        { kor: "콘서트", eng: "Concert", desc: "Live musical performance." },
+        { kor: "콜록콜록", eng: "Coughing sound", desc: "Sound of a cough." },
+        { kor: "콤플렉스", eng: "Complex", desc: "Insecurity about something." },
+        { kor: "큐티", eng: "Cute", desc: "Being pretty or adorable." },
+        { kor: "크다", eng: "To be big", desc: "Large in scale/size." },
+        { kor: "크림", eng: "Cream", desc: "Thick oily substance." },
+        { kor: "클래식", eng: "Classic", desc: "Traditional/Standard style." },
+        { kor: "키보드", eng: "Keyboard", desc: "Board with keys for typing." },
+        { kor: "캐나다", eng: "Canada", desc: "Country in North America." },
+        { kor: "캠핑", eng: "Camping", desc: "Living in a tent outdoors." },
+        { kor: "캐리어", eng: "Suitcase", desc: "Baggage for travel." },
+        // ㅌ (New)
+        { kor: "태권도", eng: "Taekwondo", desc: "Korean martial art." },
+        { kor: "테이프", eng: "Tape", desc: "Sticky strip for binding." },
+        { kor: "텍스트", eng: "Text", desc: "Written words." },
+        { kor: "토론", eng: "Discussion", desc: "Debating a topic." },
+        { kor: "통장", eng: "Bankbook", desc: "Record of bank account." },
+        { kor: "통증", eng: "Pain", desc: "Physical suffering." },
+        { kor: "퇴근하다", eng: "Finish work", desc: "Leaving the office." },
+        { kor: "특별", eng: "Special", desc: "Not ordinary." },
+        { kor: "티켓", eng: "Ticket", desc: "Pass for entrance." },
+        { kor: "튼튼하다", eng: "Strong / Solid", desc: "Hard to break." },
+        { kor: "틀리다", eng: "To be wrong", desc: "Not correct." },
+        { kor: "트위터", eng: "Twitter (X)", desc: "Social media platform." },
+        { kor: "트레이닝", eng: "Training", desc: "Physical exercise/practice." },
+        { kor: "트러블", eng: "Trouble", desc: "Problems or difficulties." },
+        { kor: "튜브", eng: "Tube", desc: "Inflatable ring for water." },
+        // ㅍ (New)
+        { kor: "파란색", eng: "Blue", desc: "Color of the ocean." },
+        { kor: "파일", eng: "File", desc: "Computer folder or document." },
+        { kor: "팔", eng: "Arm", desc: "Body part from shoulder to hand." },
+        { kor: "팔찌", eng: "Bracelet", desc: "Jewelry for the wrist." },
+        { kor: "패션", eng: "Fashion", desc: "Style of clothes." },
+        { kor: "펜", eng: "Pen", desc: "Tool for writing with ink." },
+        { kor: "편의점", eng: "Store", desc: "Convenience store." },
+        { kor: "평일", eng: "Weekday", desc: "Monday to Friday." },
+        { kor: "포장", eng: "Packing / Takeout", desc: "Wrapping something up." },
+        { kor: "표지판", eng: "Signboard", desc: "Sign giving directions." },
+        { kor: "풀", eng: "Glue / Grass", desc: "Sticky paste or green plants." },
+        { kor: "풍선", eng: "Balloon", desc: "Air-filled rubber bag." },
+        { kor: "피망", eng: "Bell pepper", desc: "Large mild chili pepper." },
+        { kor: "피부", eng: "Skin", desc: "Outer covering of the body." },
+        { kor: "필통", eng: "Pencil case", desc: "Case for pens and pencils." },
+        // ㅎ (New)
+        { kor: "하얗다", eng: "To be white", desc: "Color of milk or snow." },
+        { kor: "한복", eng: "Hanbok", desc: "Traditional Korean clothing." },
+        { kor: "한식", eng: "Korean food", desc: "Korean cuisine." },
+        { kor: "할머니", eng: "Grandmother", desc: "Mother's or father's mother." },
+        { kor: "할아버지", eng: "Grandfather", desc: "Mother's or father's father." },
+        { kor: "해외", eng: "Overseas", desc: "In or to a foreign country." },
+        { kor: "행복", eng: "Happiness", desc: "Feeling of joy." },
+        { kor: "허리", eng: "Waist", desc: "Middle part of the torso." },
+        { kor: "현금", eng: "Cash", desc: "Money in coins or bills." },
+        { kor: "휴대폰", eng: "Mobile phone", desc: "Handheld cellular phone." }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let isAnswered = false;
+    let shuffledQuiz = [];
+
+    function startQuiz() {
+        shuffledQuiz = [...vocabList].sort(() => Math.random() - 0.5);
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (currentIdx >= 200) {
+            alert("Congratulations! You mastered Vol.2!\nFinal Score: " + score);
+            location.reload();
+            return;
+        }
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        
+        const correct = shuffledQuiz[currentIdx];
+        document.getElementById('eng-word').innerText = correct.eng;
+        document.getElementById('count').innerText = currentIdx + 1;
+        document.getElementById('progress-fill').style.width = ((currentIdx + 1) / 200 * 100) + "%";
+
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 5;
+                    expDiv.innerHTML = `<b style="color:var(--success);">✔ Correct!</b><br><b>${item.kor}</b> = ${item.eng}<br><small>${item.desc}</small>`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<b style="color:var(--error);">✘ Wrong!</b><br>You chose: <b>${item.kor}</b> (= ${item.eng})<br><br>The correct answer for "<b>${correct.eng}</b>" is <b>${correct.kor}</b>.`;
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+                currentIdx++;
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

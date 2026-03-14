@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㄷ' (100 Words)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        #intro-area { text-align: left; line-height: 1.6; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-align: center; margin-bottom: 20px; }
+        .content-box { background: #f0f7ff; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-bottom: 20px; font-size: 0.95rem; }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .wrong-tag { color: var(--error); font-weight: bold; }
+        .correct-tag { color: var(--success); font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #3: 'ㄷ' (100 Words)</div>
+        <div class="content-box">
+            <b>📋 학습 내용 (Learning Contents)</b><br>
+            • Nouns: 도시 City, 도서관 Library, 돈 Money, 동물 Animal<br>
+            • Verbs: 닦다 To wipe, 닫다 To close, 듣다 To listen, 돕다 To help<br>
+            • Adjectives: 달다 Sweet, 다르다 Different, 더럽다 Dirty, 덥다 Hot<br>
+            • Time/Qty: 다음 Next, 다시 Again, 드디어 Finally, 다 All
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="header"><span>Series: <b>'ㄷ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "다", eng: "All / Everything", desc: "The whole amount or every part." },
+        { kor: "닦다", eng: "To wipe / brush", desc: "To clean by rubbing (teeth, floor, etc)." },
+        { kor: "다르다", eng: "Different", desc: "Not the same as another." },
+        { kor: "다리", eng: "Leg / Bridge", desc: "Body part for walking, or a path over water." },
+        { kor: "다섯", eng: "Five", desc: "The number 5 (Native Korean)." },
+        { kor: "다시", eng: "Again", desc: "Once more; another time." },
+        { kor: "다음", eng: "Next", desc: "Coming immediately after." },
+        { kor: "다이어트", eng: "Diet", desc: "Effort to lose weight." },
+        { kor: "다치다", eng: "To get hurt", desc: "To receive a physical injury." },
+        { kor: "다행이다", eng: "To be fortunate", desc: "Relieved that something bad didn't happen." },
+        { kor: "닦다", eng: "To clean / wipe", desc: "To polish or scrub something." },
+        { kor: "단어", eng: "Word", desc: "A single distinct meaningful element of speech." },
+        { kor: "닫다", eng: "To close", desc: "To shut a door, window, or store." },
+        { kor: "달", eng: "Moon / Month", desc: "Earth's satellite or a period of 30 days." },
+        { kor: "달다", eng: "Sweet", desc: "Taste like sugar or honey." },
+        { kor: "달리기", eng: "Running", desc: "The act of moving fast on foot." },
+        { kor: "달리다", eng: "To run", desc: "To move at a speed faster than walking." },
+        { kor: "달력", eng: "Calendar", desc: "A chart showing days, weeks, and months." },
+        { kor: "달걀", eng: "Egg", desc: "Chicken's egg used for food." },
+        { kor: "달콤하다", eng: "Sweet / Luscious", desc: "Pleasantly sweet." },
+        { kor: "담배", eng: "Cigarette", desc: "Dried tobacco leaves for smoking." },
+        { kor: "대답", eng: "Answer / Reply", desc: "A response to a question." },
+        { kor: "대답하다", eng: "To answer", desc: "To say something in response." },
+        { kor: "대부분", eng: "Mostly / Majority", desc: "Greater part or more than half." },
+        { kor: "대사관", eng: "Embassy", desc: "Official office of an ambassador." },
+        { kor: "대학생", eng: "College student", desc: "A person studying at a university." },
+        { kor: "대학교", eng: "University", desc: "High-level educational institution." },
+        { kor: "대화", eng: "Conversation", desc: "Talk between two or more people." },
+        { kor: "대회", eng: "Competition / Contest", desc: "A meeting for sports or skills." },
+        { kor: "댁", eng: "House (honorific)", desc: "A polite way to say someone's home." },
+        { kor: "던지다", eng: "To throw", desc: "To propel something through the air." },
+        { kor: "덥다", eng: "Hot (weather)", desc: "Having a high temperature." },
+        { kor: "더", eng: "More", desc: "Greater amount or degree." },
+        { kor: "더럽다", eng: "Dirty", desc: "Not clean; covered in dirt." },
+        { kor: "덕분에", eng: "Thanks to...", desc: "Because of someone's help." },
+        { kor: "덜", eng: "Less", desc: "To a smaller extent or degree." },
+        { kor: "데려가다", eng: "To take (someone)", desc: "To go with a person to a place." },
+        { kor: "데려오다", eng: "To bring (someone)", desc: "To come with a person here." },
+        { kor: "데이트", eng: "Date", desc: "A romantic meeting." },
+        { kor: "도구", eng: "Tool", desc: "An instrument used for a task." },
+        { kor: "도둑", eng: "Thief", desc: "A person who steals." },
+        { kor: "도락", eng: "Pleasure", desc: "Enjoyment or hobby." },
+        { kor: "도로", eng: "Road", desc: "A wide way for vehicles." },
+        { kor: "도서관", eng: "Library", desc: "Place where books are kept." },
+        { kor: "도시", eng: "City", desc: "A large town." },
+        { kor: "도시락", eng: "Lunch box", desc: "Meal packed in a container." },
+        { kor: "도와주다", eng: "To help", desc: "To assist someone with a task." },
+        { kor: "도움", eng: "Help / Assistance", desc: "The act of helping." },
+        { kor: "도착", eng: "Arrival", desc: "The act of reaching a place." },
+        { kor: "도착하다", eng: "To arrive", desc: "To reach a destination." },
+        { kor: "독서", eng: "Reading", desc: "The action of reading books." },
+        { kor: "독일", eng: "Germany", desc: "A country in Europe." },
+        { kor: "돈", eng: "Money", desc: "Currency used to buy things." },
+        { kor: "돌", eng: "Stone / First birthday", desc: "A rock, or a child's 1st year." },
+        { kor: "돌아가다", eng: "To return / go back", desc: "To go back to a place." },
+        { kor: "돌아오다", eng: "To return / come back", desc: "To come back to a place." },
+        { kor: "돕다", eng: "To help", desc: "To provide aid or support." },
+        { kor: "동네", eng: "Neighborhood", desc: "Local area where people live." },
+        { kor: "동물", eng: "Animal", desc: "A living creature that isn't a human." },
+        { kor: "동물원", eng: "Zoo", desc: "Place where animals are kept for display." },
+        { kor: "동생", eng: "Younger sibling", desc: "A younger brother or sister." },
+        { kor: "동시", eng: "Same time", desc: "Occurring at once." },
+        { kor: "동안", eng: "During / Period", desc: "A length of time." },
+        { kor: "동전", eng: "Coin", desc: "Flat, round piece of metal money." },
+        { kor: "동쪽", eng: "East", desc: "Direction where the sun rises." },
+        { kor: "돼지", eng: "Pig", desc: "A farm animal with a snout." },
+        { kor: "돼지고기", eng: "Pork", desc: "Meat from a pig." },
+        { kor: "되다", eng: "To become", desc: "To turn into or change into." },
+        { kor: "두", eng: "Two", desc: "The number 2 (Native Korean, modifier)." },
+        { kor: "두껍다", eng: "Thick", desc: "Large distance between sides (book, ice)." },
+        { kor: "두다", eng: "To put / leave", desc: "To place something in a spot." },
+        { kor: "둘", eng: "Two", desc: "The number 2 (Native Korean)." },
+        { kor: "뒤", eng: "Back / Behind", desc: "The rear part or position." },
+        { kor: "드디어", eng: "Finally", desc: "After a long time." },
+        { kor: "드라마", eng: "Drama", desc: "A TV show or play." },
+        { kor: "드리다", eng: "To give (honorific)", desc: "Polite version of 'to give'." },
+        { kor: "듣다", eng: "To listen / hear", desc: "To perceive sound with ears." },
+        { kor: "들다", eng: "To lift / carry / enter", desc: "To pick up or to go inside." },
+        { kor: "들어가다", eng: "To enter", desc: "To go into a space." },
+        { kor: "들어오다", eng: "To come in", desc: "To enter toward the speaker." },
+        { kor: "들키다", eng: "To be caught", desc: "To be found doing something secret." },
+        { kor: "등", eng: "Back (body) / etc.", desc: "Rear of body, or 'and so on'." },
+        { kor: "등산", eng: "Hiking / Climbing", desc: "Walking up a mountain." },
+        { kor: "디자인", eng: "Design", desc: "A plan or drawing of something." },
+        { kor: "따뜻하다", eng: "To be warm", desc: "Pleasantly hot." },
+        { kor: "따로", eng: "Separately", desc: "Not together." },
+        { kor: "딸", eng: "Daughter", desc: "A female child." },
+        { kor: "딸기", eng: "Strawberry", desc: "A small red fruit with seeds." },
+        { kor: "땅", eng: "Land / Ground", desc: "The surface of the earth." },
+        { kor: "때", eng: "Time / When", desc: "A particular moment." },
+        { kor: "때문", eng: "Because / Reason", desc: "The cause of something." },
+        { kor: "떠나다", eng: "To leave", desc: "To depart from a place." },
+        { kor: "떡", eng: "Rice cake", desc: "Korean food made of steamed rice." },
+        { kor: "떡볶이", eng: "Tteokbokki", desc: "Spicy stirred rice cakes." },
+        { kor: "떨어지다", eng: "To fall / drop", desc: "To move downward freely." },
+        { kor: "또", eng: "Also / Again", desc: "In addition or once more." },
+        { kor: "똑똑하다", eng: "To be smart", desc: "Intelligent or clever." },
+        { kor: "뚱뚱하다", eng: "To be fat", desc: "Having a lot of body weight." },
+        { kor: "뛰다", eng: "To jump / run", desc: "To spring off the ground." },
+        { kor: "뜨겁다", eng: "To be hot (touch)", desc: "Having a high temp (liquid, objects)." }
+    ];
+
+    let score = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span class="correct-tag">✔ 정답입니다! (Correct)</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span class="wrong-tag">✘ 오답입니다. (Wrong Choice)</span><br>` +
+                                       `방금 누르신 <b>'${item.kor}'</b>의 뜻은 <b style="color:#2c3e50;">'${item.eng}'</b>입니다.<br>` +
+                                       `<small>(${item.desc})</small><br><hr style="border:0; border-top:1px solid #eee; margin:10px 0;">` +
+                                       `정답은 <b class="correct-tag">'${correct.kor}'</b> (${correct.eng}) 입니다.`;
+                    
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

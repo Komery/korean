@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangeul Master</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #e67e22; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 550px; background: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .display-unit { background: #fffaf0; padding: 20px; border-radius: 20px; text-align: center; border: 2px solid #ffecb3; margin-bottom: 20px; position: sticky; top: 0; z-index: 10; }
+        .combined-text { font-size: 85px; font-weight: bold; color: var(--primary); margin: 0; min-height: 120px; line-height: 1.2; }
+        .pron-main { font-size: 32px; color: var(--accent); font-weight: bold; margin: 5px 0; letter-spacing: 1px; }
+        .pron-formula { font-size: 16px; color: #7f8c8d; font-weight: 500; }
+        .grid-label { font-weight: bold; margin: 18px 0 6px 0; color: #555; font-size: 13px; border-left: 4px solid var(--accent); padding-left: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .key { padding: 12px 0; border: 1px solid #eee; border-radius: 8px; cursor: pointer; background: white; text-align: center; font-weight: bold; font-size: 16px; transition: 0.1s; }
+        .key.selected { background: var(--accent); color: white; border-color: var(--accent); }
+        .btn-reset { grid-column: span 7; background: #f1f2f6; color: #7f8c8d; font-size: 12px; margin-top: 5px; border: 1px solid #ddd; padding: 8px; text-align: center; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="display-unit">
+        <div class="combined-text" id="target-char">가</div>
+        <div class="pron-main" id="target-pron-main">GA</div>
+        <div class="pron-formula" id="target-formula">G + A = GA</div>
+    </div>
+
+    <div class="grid-label">1. Initial (ㄱ ~ ㅎ)</div>
+    <div class="grid" id="init-grid"></div>
+
+    <div class="grid-label">2. Vowels (ㅏ ~ ㅣ)</div>
+    <div class="grid" id="vow1-grid"></div>
+    <div class="grid" id="vow2-grid"></div>
+    <div class="btn-reset" id="reset-vow2" onclick="selectVow2(null)">No Second Vowel</div>
+
+    <div class="grid-label">3. Final Batchim (ㄱ ~ ㅎ 순서)</div>
+    <div class="grid" id="batch-primary-grid"></div>
+    <div class="grid-label" style="border-left-color:#bdc3c7; color:#7f8c8d; font-size:11px;">Advanced / Double Batchim</div>
+    <div class="grid" id="batch-advanced-grid"></div>
+    <div class="btn-reset" id="reset-batch" onclick="selectBatch(null)">No Batchim</div>
+</div>
+
+<script>
+    // 유니코드 표준 인덱스 고정
+    const CHOSUNG = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+    const JUNGSUNG = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+    const JONGSUNG = ["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+
+    // 초성 가나다순
+    const inits = [
+        {k:'ㄱ',e:'G'},{k:'ㄴ',e:'N'},{k:'ㄷ',e:'D'},{k:'ㄹ',e:'R'},{k:'ㅁ',e:'M'},{k:'ㅂ',e:'B'},{k:'ㅅ',e:'S'},
+        {k:'ㅇ',e:''},{k:'ㅈ',e:'J'},{k:'ㅊ',e:'CH'},{k:'ㅋ',e:'K'},{k:'ㅌ',e:'T'},{k:'ㅍ',e:'P'},{k:'ㅎ',e:'H'},
+        {k:'ㄲ',e:'KK'},{k:'ㄸ',e:'TT'},{k:'ㅃ',e:'PP'},{k:'ㅆ',e:'SS'},{k:'ㅉ',e:'JJ'}
+    ];
+
+    const vows1 = [{k:'ㅏ',e:'A'},{k:'ㅓ',e:'EO'},{k:'ㅗ',e:'O'},{k:'ㅜ',e:'U'},{k:'ㅡ',e:'EU'},{k:'ㅣ',e:'I'},{k:'ㅑ',e:'YA'},{k:'ㅕ',e:'YEO'},{k:'ㅛ',e:'YO'},{k:'ㅠ',e:'YU'}];
+    const vows2 = [{k:'ㅏ',e:'A'},{k:'ㅐ',e:'AE'},{k:'ㅓ',e:'EO'},{k:'ㅔ',e:'E'},{k:'ㅣ',e:'I'}];
+
+    // 받침: ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ 순서로 재배치
+    const batchPrimary = [
+        {k:'ㄱ',e:'K'},{k:'ㄴ',e:'N'},{k:'ㄷ',e:'T'},{k:'ㄹ',e:'L'},{k:'ㅁ',e:'M'},{k:'ㅂ',e:'P'},{k:'ㅅ',e:'T'},
+        {k:'ㅇ',e:'NG'},{k:'ㅈ',e:'T'},{k:'ㅊ',e:'T'},{k:'ㅋ',e:'K'},{k:'ㅌ',e:'T'},{k:'ㅍ',e:'P'},{k:'ㅎ',e:'T'}
+    ];
+
+    // 쌍받침 및 겹받침 순서 정리
+    const batchAdvanced = [
+        {k:'ㄲ',e:'K'},{k:'ㅆ',e:'T'},
+        {k:'ㄳ',e:'K'},{k:'ㄵ',e:'N'},{k:'ㄶ',e:'N'},{k:'ㄺ',e:'K'},{k:'ㄻ',e:'M'},{k:'ㄼ',e:'L'},{k:'ㄽ',e:'L'},{k:'ㄾ',e:'L'},{k:'ㄿ',e:'P'},{k:'ㅀ',e:'L'},{k:'ㅄ',e:'P'}
+    ];
+
+    const vowelMap = {'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
+    const vPronMap = {'ㅏ':'A','ㅐ':'AE','ㅑ':'YA','ㅒ':'YAE','ㅓ':'EO','ㅔ':'E','ㅕ':'YEO','ㅖ':'YE','ㅗ':'O','ㅘ':'WA','ㅙ':'WAE','ㅚ':'OE','ㅛ':'YO','ㅜ':'U','ㅝ':'WO','ㅞ':'WE','ㅟ':'WI','ㅠ':'YU','ㅡ':'EU','ㅢ':'UI','ㅣ':'I'};
+
+    let sInit = inits[0], sVow1 = vows1[0], sVow2 = null, sBatch = null;
+
+    function init() {
+        renderGrid('init-grid', inits, (item) => { sInit = item; });
+        renderGrid('vow1-grid', vows1, (item) => { sVow1 = item; });
+        renderGrid('vow2-grid', vows2, (item) => { sVow2 = item; document.getElementById('reset-vow2').classList.remove('selected'); });
+        renderGrid('batch-primary-grid', batchPrimary, (item) => { sBatch = item; clearBatch('batch-advanced-grid'); });
+        renderGrid('batch-advanced-grid', batchAdvanced, (item) => { sBatch = item; clearBatch('batch-primary-grid'); });
+        render();
+    }
+
+    function renderGrid(id, data, onSelect) {
+        const grid = document.getElementById(id);
+        data.forEach(item => {
+            const btn = document.createElement('div');
+            btn.className = 'key';
+            if((id==='init-grid'&&item===sInit)||(id==='vow1-grid'&&item===sVow1)) btn.classList.add('selected');
+            btn.innerText = item.k;
+            btn.onclick = () => {
+                if(id.includes('batch')) { document.querySelectorAll('[id^="batch-"] .key').forEach(k=>k.classList.remove('selected')); document.getElementById('reset-batch').classList.remove('selected'); }
+                else { document.querySelectorAll(`#${id} .key`).forEach(k=>k.classList.remove('selected')); }
+                btn.classList.add('selected');
+                onSelect(item);
+                render();
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    function clearBatch(id) { document.querySelectorAll(`#${id} .key`).forEach(k=>k.classList.remove('selected')); }
+    function selectVow2(v) { sVow2 = v; document.querySelectorAll('#vow2-grid .key').forEach(k=>k.classList.remove('selected')); document.getElementById('reset-vow2').classList.add('selected'); render(); }
+    function selectBatch(v) { sBatch = v; document.querySelectorAll('[id^="batch-"] .key').forEach(k=>k.classList.remove('selected')); document.getElementById('reset-batch').classList.add('selected'); render(); }
+
+    function render() {
+        let finalV = sVow1.k;
+        let vPartFormula = sVow1.e;
+
+        if (sVow2) {
+            const combined = sVow1.k + sVow2.k;
+            if(vowelMap[combined]) {
+                finalV = vowelMap[combined];
+                vPartFormula = `${sVow1.e} + ${sVow2.e}`;
+            } else {
+                finalV = sVow2.k;
+                vPartFormula = sVow2.e;
+            }
+        }
+
+        const iIdx = CHOSUNG.indexOf(sInit.k);
+        const vIdx = JUNGSUNG.indexOf(finalV);
+        const bIdx = sBatch ? JONGSUNG.indexOf(sBatch.k.replace(' ', '')) : 0;
+
+        if (iIdx !== -1 && vIdx !== -1) {
+            const code = (iIdx * 21 + vIdx) * 28 + bIdx + 0xAC00;
+            document.getElementById('target-char').innerText = String.fromCharCode(code);
+            
+            const iP = sInit.e;
+            const vP = vPronMap[finalV] || "";
+            const bP = sBatch ? sBatch.e : "";
+            
+            const totalPron = (iP + vP + bP).toUpperCase();
+            document.getElementById('target-pron-main').innerText = totalPron;
+
+            let formulaText = `${iP || 'silent'} + ${vPartFormula}`;
+            if(bP) formulaText += ` + ${bP}`;
+            formulaText += ` = ${totalPron}`;
+            
+            document.getElementById('target-formula').innerText = formulaText;
+        }
+    }
+    init();
+    document.getElementById('reset-vow2').classList.add('selected');
+    document.getElementById('reset-batch').classList.add('selected');
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㅊ' (100 Words with Study Guide)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 15px; }
+        .study-guide { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; line-height: 1.6; max-height: 300px; overflow-y: auto; }
+        .study-guide b { color: var(--primary); }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .progress-bar { height: 5px; background: #eee; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+        #progress { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #10: 'ㅊ' Study & Quiz</div>
+        <div class="study-guide">
+            <b>[Nouns]</b><br>
+            친구(Friend), 책(Book), 차(Car/Tea), 창문(Window), 천(Thousand), 침대(Bed), 치마(Skirt), 치약(Toothpaste), 채소(Vegetable), 축구(Soccer)<br><br>
+            <b>[Verbs]</b><br>
+            찾다(Find), 참다(Endure), 추다(Dance), 축하하다(Congratulate), 출발하다(Depart), 치다(Hit/Play), 채우다(Fill), 치우다(Clean up)<br><br>
+            <b>[Adjectives]</b><br>
+            착하다(Kind), 춥다(Cold), 충분하다(Enough), 친절하다(Friendly), 친하다(Close), 차갑다(Cold to touch)<br><br>
+            <b>[Others]</b><br>
+            처음(First), 천천히(Slowly), 최근(Recently), 직접(Directly), 최고(Best)
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start 100-Word Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="progress-bar"><div id="progress"></div></div>
+        <div class="header"><span>Series: <b>'ㅊ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "차", eng: "Car / Tea", desc: "A vehicle or a drink." },
+        { kor: "차갑다", eng: "To be cold", desc: "Cold to the touch." },
+        { kor: "차례", eng: "Turn / Order", desc: "Sequence or ancestral rites." },
+        { kor: "차비", eng: "Fare", desc: "Transportation cost." },
+        { kor: "차이", eng: "Difference", desc: "Distinction between things." },
+        { kor: "착하다", eng: "To be kind", desc: "Good/nice personality." },
+        { kor: "참", eng: "Truly / Very", desc: "Used for emphasis." },
+        { kor: "참다", eng: "To endure", desc: "To hold back or bear." },
+        { kor: "창문", eng: "Window", desc: "Glass opening in a wall." },
+        { kor: "찾다", eng: "To find / search", desc: "Looking for something." },
+        { kor: "채소", eng: "Vegetable", desc: "Edible plant." },
+        { kor: "채우다", eng: "To fill", desc: "Making something full." },
+        { kor: "책", eng: "Book", desc: "Printed work." },
+        { kor: "책상", eng: "Desk", desc: "Work table." },
+        { kor: "책임", eng: "Responsibility", desc: "Being accountable." },
+        { kor: "처음", eng: "First time", desc: "The very beginning." },
+        { kor: "천", eng: "Thousand", desc: "Number 1,000." },
+        { kor: "천사", eng: "Angel", desc: "Spiritual being." },
+        { kor: "천천히", eng: "Slowly", desc: "At a low speed." },
+        { kor: "첫째", eng: "First", desc: "Number one in a series." },
+        { kor: "청소", eng: "Cleaning", desc: "Removing dirt." },
+        { kor: "청바지", eng: "Blue jeans", desc: "Denim pants." },
+        { kor: "체육", eng: "P.E.", desc: "Physical education." },
+        { kor: "초", eng: "Second / Candle", desc: "Time unit or wax light." },
+        { kor: "초대하다", eng: "To invite", desc: "Asking someone over." },
+        { kor: "최고", eng: "The best", desc: "Highest level." },
+        { kor: "최근", eng: "Recently", desc: "Lately." },
+        { kor: "최선", eng: "One's best", desc: "Utmost effort." },
+        { kor: "추억", eng: "Memory", desc: "Past recollection." },
+        { kor: "추다", eng: "To dance", desc: "Moving to music." },
+        { kor: "추천", eng: "Recommendation", desc: "Suggesting something." },
+        { kor: "축구", eng: "Soccer", desc: "Ball game with feet." },
+        { kor: "축제", eng: "Festival", desc: "Celebration event." },
+        { kor: "축하하다", eng: "To congratulate", desc: "Celebrating success." },
+        { kor: "출구", eng: "Exit", desc: "Way out." },
+        { kor: "출발하다", eng: "To depart", desc: "Starting a journey." },
+        { kor: "춤", eng: "Dance", desc: "Rhythmic movement." },
+        { kor: "춥다", eng: "To be cold", desc: "Feeling low temperature." },
+        { kor: "충분히", eng: "Sufficiently", desc: "In an enough amount." },
+        { kor: "취미", eng: "Hobby", desc: "Leisure activity." },
+        { kor: "취소하다", eng: "To cancel", desc: "Calling off an order." },
+        { kor: "취직", eng: "Employment", desc: "Getting a job." },
+        { kor: "층", eng: "Floor", desc: "Level of a building." },
+        { kor: "치과", eng: "Dentist", desc: "Dental clinic." },
+        { kor: "치마", eng: "Skirt", desc: "Lower body garment." },
+        { kor: "치약", eng: "Toothpaste", desc: "Paste for teeth." },
+        { kor: "치우다", eng: "To clean up", desc: "Clearing clutter." },
+        { kor: "치킨", eng: "Chicken", desc: "Fried chicken." },
+        { kor: "치다", eng: "To hit / play", desc: "Striking or playing instruments." },
+        { kor: "친구", eng: "Friend", desc: "Close acquaintance." },
+        { kor: "친절하다", eng: "To be kind", desc: "Friendly behavior." },
+        { kor: "친하다", eng: "To be close", desc: "Intimate relationship." },
+        { kor: "침대", eng: "Bed", desc: "Sleeping furniture." },
+        { kor: "칫솔", eng: "Toothbrush", desc: "Brush for teeth." },
+        { kor: "창피하다", eng: "To be embarrassed", desc: "Feeling ashamed." },
+        { kor: "찬성", eng: "Agreement", desc: "Approving of an idea." },
+        { kor: "참석", eng: "Attendance", desc: "Being present." },
+        { kor: "창고", eng: "Warehouse", desc: "Storage room." },
+        { kor: "챙기다", eng: "To pack", desc: "Preparing items." },
+        { kor: "처리", eng: "Processing", desc: "Handling a task." },
+        { kor: "처벌", eng: "Punishment", desc: "Penalty." },
+        { kor: "천재", eng: "Genius", desc: "Very smart person." },
+        { kor: "철", eng: "Season / Iron", desc: "Time of year or metal." },
+        { kor: "체험", eng: "Experience", desc: "Hands-on activity." },
+        { kor: "초보", eng: "Beginner", desc: "Novice level." },
+        { kor: "총", eng: "Gun / Total", desc: "Weapon or sum." },
+        { kor: "최종", eng: "Final", desc: "The last one." },
+        { kor: "추가", eng: "Addition", desc: "Adding more." },
+        { kor: "추측", eng: "Guess", desc: "Supposition." },
+        { kor: "출근", eng: "Going to work", desc: "Heading to office." },
+        { kor: "충격", eng: "Shock", desc: "Sudden surprise." },
+        { kor: "충전", eng: "Charging", desc: "Powering battery." },
+        { kor: "치료", eng: "Treatment", desc: "Medical care." },
+        { kor: "친척", eng: "Relative", desc: "Family member." },
+        { kor: "침묵", eng: "Silence", desc: "No sound." },
+        { kor: "칭찬", eng: "Praise", desc: "Admiring words." },
+        { kor: "차별", eng: "Discrimination", desc: "Unfair treatment." },
+        { kor: "참여", eng: "Participation", desc: "Joining in." },
+        { kor: "채점", eng: "Grading", desc: "Marking scores." },
+        { kor: "체류", eng: "Stay", desc: "Residing temporarily." },
+        { kor: "출판", eng: "Publishing", desc: "Printing books." },
+        { kor: "치열하다", eng: "To be fierce", desc: "Intense competition." },
+        { kor: "차원", eng: "Dimension", desc: "Level or aspect." },
+        { kor: "창작", eng: "Creation", desc: "Original work." },
+        { kor: "채용", eng: "Hiring", desc: "Recruiting staff." },
+        { kor: "처지", eng: "Situation", desc: "Circumstances." },
+        { kor: "철학", eng: "Philosophy", desc: "Study of wisdom." },
+        { kor: "초청", eng: "Invitation", desc: "Formal invite." },
+        { kor: "최하", eng: "Lowest", desc: "Bottom level." },
+        { kor: "추위", eng: "The cold", desc: "Cold weather (noun)." },
+        { kor: "출국", eng: "Departure", desc: "Leaving a country." },
+        { kor: "충실", eng: "Faithfulness", desc: "Being devoted." },
+        { kor: "취득", eng: "Acquisition", desc: "Obtaining license/degree." },
+        { kor: "침입", eng: "Invasion", desc: "Trespassing." },
+        { kor: "칭호", eng: "Title", desc: "Name of rank." },
+        { kor: "차단", eng: "Block", desc: "Cutting off access." },
+        { kor: "참담", eng: "Miserable", desc: "Terrible state." },
+        { kor: "창백", eng: "Pale", desc: "White-faced." },
+        { kor: "채취", eng: "Collection", desc: "Gathering samples." },
+        { kor: "천국", eng: "Heaven", desc: "Paradise." }
+    ];
+
+    let score = 0;
+    let currentIdx = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (currentIdx >= 100) {
+            alert("대단합니다! 'ㅊ' 파트 100단어를 모두 마쳤습니다.");
+            return;
+        }
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span style="color:var(--success); font-weight:bold;">✔ Correct!</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span style="color:var(--error); font-weight:bold;">✘ Wrong</span><br><b>'${item.kor}'</b> is <b>'${item.eng}'</b>.<br>Correct answer: <b style="color:var(--success);">'${correct.kor}'</b>`;
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+                currentIdx++;
+                document.getElementById('progress').style.width = (currentIdx / 100 * 100) + "%";
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

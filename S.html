@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㅅ' (100 Words)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        #intro-area { text-align: left; line-height: 1.6; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-align: center; margin-bottom: 20px; }
+        .content-box { background: #f0f7ff; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-bottom: 20px; font-size: 0.95rem; }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .wrong-tag { color: var(--error); font-weight: bold; }
+        .correct-tag { color: var(--success); font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #7: 'ㅅ' (100 Words)</div>
+        <div class="content-box">
+            <b>📋 학습 내용 (Learning Contents)</b><br>
+            • Nouns: 사랑 Love, 사람 Person, 시간 Time, 식당 Restaurant<br>
+            • Verbs: 사다 To buy, 살다 To live, 생각하다 To think, 서다 To stand<br>
+            • Adjectives: 쉽다 Easy, 슬프다 Sad, 시원하다 Cool, 시끄럽다 Noisy<br>
+            • Others: 새벽 Dawn, 상자 Box, 소리 Sound, 사과 Apple
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="header"><span>Series: <b>'ㅅ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "사과", eng: "Apple / Apology", desc: "A red fruit, or saying sorry." },
+        { kor: "사다", eng: "To buy", desc: "To get something by paying money." },
+        { kor: "사람", eng: "Person / Human", desc: "A human being." },
+        { kor: "사랑", eng: "Love", desc: "A strong feeling of affection." },
+        { kor: "사무실", eng: "Office", desc: "A room where people work." },
+        { kor: "사촌", eng: "Cousin", desc: "The child of one's aunt or uncle." },
+        { kor: "사진", eng: "Photo / Picture", desc: "An image taken by a camera." },
+        { kor: "사탕", eng: "Candy", desc: "A sweet food made with sugar." },
+        { kor: "사흘", eng: "Three days", desc: "A period of 72 hours." },
+        { kor: "산", eng: "Mountain", desc: "A large natural elevation of the earth." },
+        { kor: "산책", eng: "Walk / Stroll", desc: "A leisurely walk for pleasure." },
+        { kor: "살", eng: "Years old / Flesh", desc: "Counter for age, or skin/meat." },
+        { kor: "살다", eng: "To live", desc: "To have a home in a specific place." },
+        { kor: "살며시", eng: "Gently / Secretly", desc: "Moving quietly or softly." },
+        { kor: "삼", eng: "Three", desc: "The number 3 (Sino-Korean)." },
+        { kor: "삼겹살", eng: "Pork belly", desc: "A popular Korean grilled pork dish." },
+        { kor: "상자", eng: "Box", desc: "A container with a flat base and sides." },
+        { kor: "상태", eng: "Condition / State", desc: "The way someone or something is." },
+        { kor: "새", eng: "Bird / New", desc: "A feathered animal, or not old." },
+        { kor: "새벽", eng: "Dawn / Early morning", desc: "The first light of day." },
+        { kor: "샌들", eng: "Sandals", desc: "Light shoes with straps." },
+        { kor: "생각", eng: "Thought", desc: "An idea or opinion produced by thinking." },
+        { kor: "생각하다", eng: "To think", desc: "To use one's mind to form ideas." },
+        { kor: "생기다", eng: "To happen / To look like", desc: "To occur or have a certain appearance." },
+        { kor: "생선", eng: "Fish (to eat)", desc: "Fish served as food." },
+        { kor: "생신", eng: "Birthday (honorific)", desc: "Polite way to say a senior's birthday." },
+        { kor: "생일", eng: "Birthday", desc: "The day on which a person was born." },
+        { kor: "생활", eng: "Life / Living", desc: "The way of daily existence." },
+        { kor: "샤워", eng: "Shower", desc: "Washing the body under falling water." },
+        { kor: "서다", eng: "To stand", desc: "To be in an upright position on feet." },
+        { kor: "서른", eng: "Thirty", desc: "The number 30 (Native Korean)." },
+        { kor: "서류", eng: "Document", desc: "Official papers or records." },
+        { kor: "서비스", eng: "Service", desc: "Action of helping or free items." },
+        { kor: "서점", eng: "Bookstore", desc: "A shop where books are sold." },
+        { kor: "서쪽", eng: "West", desc: "The direction where the sun sets." },
+        { kor: "섞다", eng: "To mix", desc: "To combine different substances together." },
+        { kor: "선물", eng: "Gift / Present", desc: "Something given to someone for free." },
+        { kor: "선생님", eng: "Teacher", desc: "A person who teaches students." },
+        { kor: "선수", eng: "Athlete / Player", desc: "A person who plays a sport." },
+        { kor: "설명하다", eng: "To explain", desc: "To make something clear or easy to understand." },
+        { kor: "설날", eng: "Lunar New Year", desc: "Korean Traditional New Year's Day." },
+        { kor: "설탕", eng: "Sugar", desc: "Sweet crystalline substance." },
+        { kor: "섬", eng: "Island", desc: "Land surrounded by water." },
+        { kor: "성격", eng: "Personality", desc: "The qualities that make a person's character." },
+        { kor: "성공", eng: "Success", desc: "The accomplishment of an aim or purpose." },
+        { kor: "성함", eng: "Name (honorific)", desc: "Polite way to ask for a name." },
+        { kor: "세계", eng: "World", desc: "The earth and all people on it." },
+        { kor: "세금", eng: "Tax", desc: "Money paid to the government." },
+        { kor: "세다", eng: "To count / To be strong", desc: "Tallying numbers or having power." },
+        { kor: "세면대", eng: "Washbasin / Sink", desc: "Used for washing face or hands." },
+        { kor: "세상", eng: "World", desc: "All of human existence." },
+        { kor: "세수", eng: "Washing face", desc: "Cleaning the face with water." },
+        { kor: "세탁기", eng: "Washing machine", desc: "Appliance for washing clothes." },
+        { kor: "센터", eng: "Center", desc: "The middle point or an organization." },
+        { kor: "셔츠", eng: "Shirt", desc: "A garment for the upper body." },
+        { kor: "소", eng: "Cow", desc: "A large farm animal." },
+        { kor: "소개하다", eng: "To introduce", desc: "To make someone known to another." },
+        { kor: "소리", eng: "Sound / Noise", desc: "Vibrations detected by the ear." },
+        { kor: "소설", eng: "Novel", desc: "A long story about imaginary characters." },
+        { kor: "소식", eng: "News / Word", desc: "Information about a recent event." },
+        { kor: "소중하다", eng: "To be precious", desc: "Having great value or importance." },
+        { kor: "소풍", eng: "Picnic", desc: "A trip with a meal eaten outdoors." },
+        { kor: "소품", eng: "Prop / Accessory", desc: "Small items used in a play or decor." },
+        { kor: "손", eng: "Hand", desc: "The end part of the arm." },
+        { kor: "손가락", eng: "Finger", desc: "The five digits on a hand." },
+        { kor: "손님", eng: "Guest / Customer", desc: "Someone visiting or buying." },
+        { kor: "손수건", eng: "Handkerchief", desc: "A small square of cloth for wiping." },
+        { kor: "송이", eng: "Bunch / Cluster", desc: "Counter for flowers or grapes." },
+        { kor: "쇼핑", eng: "Shopping", desc: "Buying goods from stores." },
+        { kor: "수건", eng: "Towel", desc: "Cloth used for drying things." },
+        { kor: "수영", eng: "Swimming", desc: "Moving through water using limbs." },
+        { kor: "수영장", eng: "Swimming pool", desc: "An artificial area for swimming." },
+        { kor: "수업", eng: "Class / Lesson", desc: "A period of time for learning." },
+        { kor: "수요일", eng: "Wednesday", desc: "The day after Tuesday." },
+        { kor: "수저", eng: "Spoon and chopsticks", desc: "Korean set of eating utensils." },
+        { kor: "숙제", eng: "Homework", desc: "Work assigned to be done at home." },
+        { kor: "숟가락", eng: "Spoon", desc: "Utensil used for eating soup or rice." },
+        { kor: "술", eng: "Alcohol / Liquor", desc: "Drinks like beer or wine." },
+        { kor: "쉬다", eng: "To rest / To breathe", desc: "Taking a break or inhaling air." },
+        { kor: "쉽다", eng: "To be easy", desc: "Not difficult." },
+        { kor: "슈퍼", eng: "Supermarket", desc: "A shop selling food and household items." },
+        { kor: "스마트폰", eng: "Smartphone", desc: "A mobile phone with internet." },
+        { kor: "스스로", eng: "By oneself", desc: "Doing something without help." },
+        { kor: "스카프", eng: "Scarf", desc: "Fabric worn around the neck." },
+        { kor: "스포츠", eng: "Sports", desc: "Physical games and activities." },
+        { kor: "슬퍼하다", eng: "To be sad", desc: "Feeling or showing sorrow." },
+        { kor: "슬프다", eng: "To be sad", desc: "Feeling unhappy." },
+        { kor: "슬리퍼", eng: "Slippers", desc: "Light comfortable indoor shoes." },
+        { kor: "시", eng: "City / Poem / Time", desc: "Urban area, literature, or o'clock." },
+        { kor: "시간", eng: "Time / Hour", desc: "Measured period of existence." },
+        { kor: "시끄럽다", eng: "To be noisy", desc: "Making a lot of loud sounds." },
+        { kor: "시골", eng: "Countryside", desc: "Area outside of towns or cities." },
+        { kor: "시내", eng: "Downtown", desc: "The center of a city." },
+        { kor: "시원하다", eng: "To be cool / refreshing", desc: "Pleasantly cold or satisfying." },
+        { kor: "시작하다", eng: "To start", desc: "To begin an action." },
+        { kor: "시장", eng: "Market / Mayor", desc: "Place to buy goods, or a city leader." },
+        { kor: "시청", eng: "City Hall", desc: "Building for city government." },
+        { kor: "시키다", eng: "To order / To make someone do", desc: "Ordering food or assigning a task." },
+        { kor: "시험", eng: "Exam / Test", desc: "A procedure to measure knowledge." },
+        { kor: "식당", eng: "Restaurant", desc: "A place where people eat meals." },
+        { kor: "식탁", eng: "Dining table", desc: "Table used for eating meals." },
+        { kor: "신발", eng: "Shoes", desc: "Outer coverings for the feet." },
+        { kor: "신문", eng: "Newspaper", desc: "Printed daily news." },
+        { kor: "신청하다", eng: "To apply", desc: "To make a formal request." },
+        { kor: "싫다", eng: "To dislike", desc: "Not liking something." }
+    ];
+
+    let score = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span class="correct-tag">✔ 정답입니다! (Correct)</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span class="wrong-tag">✘ 오답입니다. (Wrong Choice)</span><br>` +
+                                       `방금 누르신 <b>'${item.kor}'</b>의 뜻은 <b style="color:#2c3e50;">'${item.eng}'</b>입니다.<br>` +
+                                       `<small>(${item.desc})</small><br><hr style="border:0; border-top:1px solid #eee; margin:10px 0;">` +
+                                       `정답은 <b class="correct-tag">'${correct.kor}'</b> (${correct.eng}) 입니다.`;
+                    
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

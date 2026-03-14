@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㄹ' (100 Words)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        #intro-area { text-align: left; line-height: 1.6; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-align: center; margin-bottom: 20px; }
+        .content-box { background: #f0f7ff; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-bottom: 20px; font-size: 0.95rem; }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .wrong-tag { color: var(--error); font-weight: bold; }
+        .correct-tag { color: var(--success); font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #4: 'ㄹ' (100 Words)</div>
+        <div class="content-box">
+            <b>📋 학습 내용 (Learning Contents)</b><br>
+            • Food: 라면 Ramen, 레몬 Lemon, 레스토랑 Restaurant<br>
+            • Objects: 라디오 Radio, 리모컨 Remote Control, 리본 Ribbon<br>
+            • Places/Countries: 러시아 Russia, 로마 Rome, 런던 London<br>
+            • Activities: 리듬 Rhythm, 리드 Lead, 리뷰 Review
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="header"><span>Series: <b>'ㄹ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "라면", eng: "Ramen", desc: "Instant noodles, a very popular quick meal." },
+        { kor: "라디오", eng: "Radio", desc: "A device for listening to broadcasts." },
+        { kor: "러시아", eng: "Russia", desc: "The largest country in the world." },
+        { kor: "레스토랑", eng: "Restaurant", desc: "A place where you buy and eat meals." },
+        { kor: "리모컨", eng: "Remote control", desc: "A device used to control a TV from a distance." },
+        { kor: "리포트", eng: "Report", desc: "A written document about a specific subject." },
+        { kor: "레몬", eng: "Lemon", desc: "A sour yellow citrus fruit." },
+        { kor: "로마", eng: "Rome", desc: "The capital city of Italy." },
+        { kor: "런던", eng: "London", desc: "The capital city of the UK." },
+        { kor: "로봇", eng: "Robot", desc: "A machine capable of carrying out complex actions." },
+        { kor: "리본", eng: "Ribbon", desc: "A narrow strip of fabric used for decoration." },
+        { kor: "리듬", eng: "Rhythm", desc: "A strong, regular, repeated pattern of sound." },
+        { kor: "렌즈", eng: "Lens", desc: "A piece of glass used in glasses or cameras." },
+        { kor: "로션", eng: "Lotion", desc: "A thick liquid applied to the skin." },
+        { kor: "럭비", eng: "Rugby", desc: "A team sport played with an oval ball." },
+        { kor: "로켓", eng: "Rocket", desc: "A vehicle used for traveling to space." },
+        { kor: "리더", eng: "Leader", desc: "The person who leads or commands a group." },
+        { kor: "룸메이트", eng: "Roommate", desc: "A person with whom one shares a room." },
+        { kor: "리스트", eng: "List", desc: "A number of connected items written together." },
+        { kor: "레이스", eng: "Race", desc: "A competition between runners, vehicles, etc." },
+        { kor: "로그인", eng: "Login", desc: "The process of gaining access to a computer system." },
+        { kor: "로그아웃", eng: "Logout", desc: "Ending a session on a computer system." },
+        { kor: "라인", eng: "Line", desc: "A long, narrow mark or band." },
+        { kor: "랜턴", eng: "Lantern", desc: "A portable lamp with a protective case." },
+        { kor: "라벨", eng: "Label", desc: "A small piece of paper giving info about an object." },
+        { kor: "러브", eng: "Love", desc: "An intense feeling of deep affection." },
+        { kor: "라운드", eng: "Round", desc: "Shaped like a circle or cylinder." },
+        { kor: "라이터", eng: "Lighter", desc: "A small device for producing a flame." },
+        { kor: "루비", eng: "Ruby", desc: "A precious red gemstone." },
+        { kor: "레벨", eng: "Level", desc: "A specific stage or rank in a process." },
+        { kor: "로비", eng: "Lobby", desc: "An entrance hall or open area in a building." },
+        { kor: "럭키", eng: "Lucky", desc: "Having or bringing good fortune." },
+        { kor: "리스크", eng: "Risk", desc: "A situation involving exposure to danger." },
+        { kor: "링크", eng: "Link", desc: "A connection between two things." },
+        { kor: "리필", eng: "Refill", desc: "To fill a container again." },
+        { kor: "룰", eng: "Rule", desc: "A regulation or guide for conduct." },
+        { kor: "리드", eng: "Lead", desc: "To show the way by going in advance." },
+        { kor: "레저", eng: "Leisure", desc: "Free time for enjoyment." },
+        { kor: "리빙", eng: "Living", desc: "The state of being alive or a style of life." },
+        { kor: "루프", eng: "Roof", desc: "The structure forming the upper covering of a building." },
+        { kor: "로프", eng: "Rope", desc: "Strong thick cord made by twisting strands." },
+        { kor: "리뷰", eng: "Review", desc: "A formal assessment or examination of something." },
+        { kor: "리얼", eng: "Real", desc: "Actually existing as a thing or occurance." },
+        { kor: "로컬", eng: "Local", desc: "Relating to a particular nearby area." },
+        { kor: "라이브", eng: "Live", desc: "A performance given in person." },
+        { kor: "라일락", eng: "Lilac", desc: "A pale pinkish-violet color or flower." },
+        { kor: "레시피", eng: "Recipe", desc: "A set of instructions for preparing food." },
+        { kor: "레코드", eng: "Record", desc: "A permanent account of facts or events." },
+        { kor: "리조트", eng: "Resort", desc: "A place frequented for holidays or recreation." },
+        { kor: "리액션", eng: "Reaction", desc: "An action performed or a feeling experienced in response to a situation." },
+        { kor: "랜덤", eng: "Random", desc: "Made or done without method or conscious decision." },
+        { kor: "러닝", eng: "Running", desc: "The action or movement of a runner." },
+        { kor: "루틴", eng: "Routine", desc: "A sequence of actions regularly followed." },
+        { kor: "럭셔리", eng: "Luxury", desc: "The state of great comfort and extravagant living." },
+        { kor: "렌트", eng: "Rent", desc: "To pay for the use of something." },
+        { kor: "리모델링", eng: "Remodeling", desc: "The process of improving a structure." },
+        { kor: "리스펙트", eng: "Respect", desc: "A feeling of deep admiration for someone." },
+        { kor: "로맨틱", eng: "Romantic", desc: "Conducive to or characterized by the expression of love." },
+        { kor: "레드", eng: "Red", desc: "The color of blood or fire." },
+        { kor: "라이프", eng: "Life", desc: "The existence of an individual human being." },
+        { kor: "리듬감", eng: "Sense of rhythm", desc: "The ability to follow a beat." },
+        { kor: "랩", eng: "Rap", desc: "A type of music with rhythmic speech." },
+        { kor: "레깅스", eng: "Leggings", desc: "Tight-fitting stretch pants." },
+        { kor: "레슨", eng: "Lesson", desc: "A period of learning or teaching." },
+        { kor: "로고", eng: "Logo", desc: "A symbol or design adopted by an organization." },
+        { kor: "로드", eng: "Road", desc: "A wide way leading from one place to another." },
+        { kor: "롤", eng: "Roll", desc: "To move by turning over and over." },
+        { kor: "리본", eng: "Ribbon", desc: "Used for tying hair or gifts." },
+        { kor: "리스크", eng: "Risk", desc: "Taking a chance on something dangerous." },
+        { kor: "리턴", eng: "Return", desc: "Coming or going back to a place." },
+        { kor: "리모트", eng: "Remote", desc: "Situated far apart; distant." },
+        { kor: "리더십", eng: "Leadership", desc: "The action of leading a group." },
+        { kor: "레인지", eng: "Range", desc: "The area of variation between limits." },
+        { kor: "로즈", eng: "Rose", desc: "A prickly bush or shrub that typically bears red flowers." },
+        { kor: "로열", eng: "Royal", desc: "Having the status of a king or queen." },
+        { kor: "리치", eng: "Rich", desc: "Having a great deal of money or assets." },
+        { kor: "로봇", eng: "Robot", desc: "An automated machine." },
+        { kor: "라이트", eng: "Light", desc: "Something that makes things visible." },
+        { kor: "리버", eng: "River", desc: "A large natural stream of water." },
+        { kor: "로켓", eng: "Rocket", desc: "Used to launch satellites." },
+        { kor: "리포터", eng: "Reporter", desc: "A person who reports news." },
+        { kor: "레전드", eng: "Legend", desc: "An extremely famous or notorious person." },
+        { kor: "링크", eng: "Link", desc: "A connection or shortcut on the web." },
+        { kor: "로그", eng: "Log", desc: "An official record of events." },
+        { kor: "루프", eng: "Loop", desc: "A shape produced by a curve that bends back on itself." },
+        { kor: "래퍼", eng: "Wrapper / Rapper", desc: "Someone who raps or something that covers." },
+        { kor: "레벨업", eng: "Level up", desc: "Increasing a level in a game or skill." },
+        { kor: "리서치", eng: "Research", desc: "The systematic investigation into a study." },
+        { kor: "리사이클", eng: "Recycle", desc: "To convert waste into reusable material." },
+        { kor: "리스", eng: "Lease", desc: "A contract for renting property." },
+        { kor: "리무진", eng: "Limousine", desc: "A large, luxurious automobile." },
+        { kor: "리허설", eng: "Rehearsal", desc: "A practice session for a performance." },
+        { kor: "런닝머신", eng: "Treadmill", desc: "Exercise machine for running." },
+        { kor: "로터리", eng: "Rotary", desc: "A traffic circle." },
+        { kor: "랜딩", eng: "Landing", desc: "Coming down to earth (airplane)." },
+        { kor: "리모딩", eng: "Remodeling", desc: "Renovating a house." },
+        { kor: "리플레이", eng: "Replay", desc: "Playing back a recorded event." },
+        { kor: "리퀘스트", eng: "Request", desc: "An act of asking politely for something." },
+        { kor: "리액트", eng: "React", desc: "To respond to an action." },
+        { kor: "레디", eng: "Ready", desc: "In a fit state for immediate use." }
+    ];
+
+    let score = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span class="correct-tag">✔ 정답입니다! (Correct)</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span class="wrong-tag">✘ 오답입니다. (Wrong Choice)</span><br>` +
+                                       `방금 누르신 <b>'${item.kor}'</b>의 뜻은 <b style="color:#2c3e50;">'${item.eng}'</b>입니다.<br>` +
+                                       `<small>(${item.desc})</small><br><hr style="border:0; border-top:1px solid #eee; margin:10px 0;">` +
+                                       `정답은 <b class="correct-tag">'${correct.kor}'</b> (${correct.eng}) 입니다.`;
+                    
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

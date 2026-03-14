@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survival Korean Master</title>
+    <style>
+        :root { --primary: #3498db; --success: #2ecc71; --danger: #e74c3c; --bg: #f0f4f8; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 500px; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px; font-size: 12px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; background: #fff; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .mode-switcher { margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 15px; display: flex; justify-content: space-around; }
+        .mode-btn { border: none; background: none; cursor: pointer; font-weight: bold; color: #7f8c8d; padding: 5px 10px; }
+        .mode-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .word-box { min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .word-display { font-size: 45px; font-weight: bold; color: #2c3e50; text-align: center; margin: 0; }
+        .pron { color: #7f8c8d; font-style: italic; font-size: 18px; margin-top: 5px; }
+        input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; text-align: center; margin-bottom: 15px; outline: none; }
+        .nav-btns { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        .btn-check { background: var(--success); flex: 1.5; }
+        .btn-next { background: var(--primary); }
+        #message { margin-top: 20px; padding: 15px; border-radius: 10px; font-weight: bold; min-height: 24px; text-align: center; }
+        .correct { background: #d4edda; color: #155724; }
+        .wrong { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="changeCategory('cafe')">🍴 Food/Cafe</button>
+        <button class="tab-btn" onclick="changeCategory('store')">🛒 Shopping</button>
+        <button class="tab-btn" onclick="changeCategory('direction')">🗺 Directions</button>
+        <button class="tab-btn" onclick="changeCategory('basic')">👋 Basics</button>
+    </div>
+
+    <div class="mode-switcher">
+        <button id="m-en-kr" class="mode-btn active" onclick="setMode('EN_TO_KR')">English → Korean</button>
+        <button id="m-kr-en" class="mode-btn" onclick="setMode('KR_TO_EN')">Korean → English</button>
+    </div>
+
+    <div id="quiz-status" style="color: #95a5a6; font-size: 14px; margin-bottom: 10px;">Word 1 / 30</div>
+    
+    <div class="word-box">
+        <p class="word-display" id="main-word"></p>
+        <p class="pron" id="pron-text"></p>
+    </div>
+
+    <input type="text" id="answer-input" placeholder="Type here..." autocomplete="off">
+
+    <div class="nav-btns">
+        <button class="btn" style="background:#bdc3c7" onclick="prevWord()">Prev</button>
+        <button class="btn btn-check" onclick="checkAnswer()">Check</button>
+        <button class="btn btn-next" onclick="nextWord()">Next</button>
+    </div>
+
+    <div id="message"></div>
+</div>
+
+<script>
+    const allData = {
+        cafe: [
+            {kr:"커피", en:"coffee", pron:"Keopi"}, {kr:"물", en:"water", pron:"Mul"}, {kr:"메뉴", en:"menu", pron:"Menyu"}, {kr:"주문", en:"order", pron:"Jumun"}, {kr:"계산", en:["check", "bill"], pron:"Gyesan"},
+            {kr:"식당", en:"restaurant", pron:"Sikdang"}, {kr:"카페", en:"cafe", pron:"Kape"}, {kr:"컵", en:"cup", pron:"Keop"}, {kr:"빨대", en:"straw", pron:"Ppaldae"}, {kr:"휴지", en:"tissue", pron:"Hyuji"},
+            {kr:"아이스", en:"iced", pron:"Aiseu"}, {kr:"핫", en:"hot", pron:"Hat"}, {kr:"추천", en:"recommendation", pron:"Chucheon"}, {kr:"밥", en:"rice", pron:"Bap"}, {kr:"반찬", en:"side dish", pron:"Banchan"},
+            {kr:"고기", en:"meat", pron:"Gogi"}, {kr:"야채", en:"vegetable", pron:"Yachae"}, {kr:"술", en:"alcohol", pron:"Sul"}, {kr:"맥주", en:"beer", pron:"Maekju"}, {kr:"소주", en:"soju", pron:"Soju"},
+            {kr:"맛있어요", en:"delicious", pron:"Masisseoyo"}, {kr:"매워요", en:"spicy", pron:"Maewoyo"}, {kr:"달아요", en:"sweet", pron:"Darayo"}, {kr:"짜요", en:"salty", pron:"Jjayo"}, {kr:"포장", en:["take out", "to go"], pron:"Pojang"},
+            {kr:"여기요", en:"excuse me", pron:"Yeogiyo"}, {kr:"숟가락", en:"spoon", pron:"Sutgarak"}, {kr:"젓가락", en:"chopsticks", pron:"Jeotgarak"}, {kr:"물티슈", en:"wet wipe", pron:"Multisyu"}, {kr:"앞접시", en:"extra plate", pron:"Apjeopsi"}
+        ],
+        store: [
+            {kr:"편의점", en:"convenience store", pron:"Pyeonuijeom"}, {kr:"우유", en:"milk", pron:"Uyu"}, {kr:"빵", en:"bread", pron:"Ppang"}, {kr:"과자", en:"snack", pron:"Gwaja"}, {kr:"라면", en:"ramen", pron:"Ramyeon"},
+            {kr:"도시락", en:"lunch box", pron:"Dosirak"}, {kr:"계란", en:"egg", pron:"Gyeran"}, {kr:"봉투", en:["bag", "plastic bag"], pron:"Bongtu"}, {kr:"영수증", en:"receipt", pron:"Yeongsujeung"}, {kr:"카드", en:"card", pron:"Kadeu"},
+            {kr:"현금", en:"cash", pron:"Hyeongeum"}, {kr:"얼마예요", en:"how much", pron:"Olmayeyo"}, {kr:"비싸요", en:"expensive", pron:"Bissayo"}, {kr:"싸요", en:"cheap", pron:"Ssayo"}, {kr:"세일", en:"sale", pron:"Seil"},
+            {kr:"원", en:"won", pron:"Won"}, {kr:"사과", en:"apple", pron:"Sagwa"}, {kr:"물건", en:"item", pron:"Mulgeon"}, {kr:"가방", en:"bag", pron:"Gabang"}, {kr:"옷", en:"clothes", pron:"Ot"},
+            {kr:"신발", en:"shoes", pron:"Sinbal"}, {kr:"모자", en:"hat", pron:"Moja"}, {kr:"안경", en:"glasses", pron:"Angyeong"}, {kr:"우산", en:"umbrella", pron:"Usan"}, {kr:"선물", en:"gift", pron:"Seonmul"}
+        ],
+        direction: [
+            {kr:"여기", en:"here", pron:"Yeogi"}, {kr:"저기", en:"there", pron:"Jeogi"}, {kr:"어디", en:"where", pron:"Eodi"}, {kr:"왼쪽", en:"left", pron:"Oenjjok"}, {kr:"오른쪽", en:"right", pron:"Oreunjjok"},
+            {kr:"직진", en:"straight", pron:"Jikjin"}, {kr:"위", en:"up", pron:"Wi"}, {kr:"아래", en:"down", pron:"Arae"}, {kr:"앞", en:"front", pron:"Ap"}, {kr:"뒤", en:"back", pron:"Dwi"},
+            {kr:"화장실", en:"restroom", pron:"Hwajangsil"}, {kr:"지하철", en:"subway", pron:"Jihacheol"}, {kr:"버스", en:"bus", pron:"Beoseu"}, {kr:"택시", en:"taxi", pron:"Taeksi"}, {kr:"역", en:"station", pron:"Yeok"},
+            {kr:"정류장", en:"stop", pron:"Jeongryujang"}, {kr:"입구", en:"entrance", pron:"Ipgu"}, {kr:"출구", en:"exit", pron:"Chulgu"}, {kr:"길", en:"street", pron:"Gil"}, {kr:"지도", en:"map", pron:"Jido"},
+            {kr:"가까워요", en:"near", pron:"Gakkawoyo"}, {kr:"멀어요", en:"far", pron:"Meoreoyo"}, {kr:"은행", en:"bank", pron:"Eunhaeng"}, {kr:"약국", en:"pharmacy", pron:"Yakguk"}, {kr:"병원", en:"hospital", pron:"Byeongwon"}
+        ],
+        basic: [
+            {kr:["안녕하세요", "안녕"], en:["hello", "Hi"], pron:"Annyeonghaseyo"}, {kr:"감사합니다", en:"thank you", pron:"Gamsahamnida"}, {kr:["미안합니다", "죄송합니다"], en:"sorry", pron:"Joesonghamnida"}, {kr:"실례합니다", en:"excuse me", pron:"Sillyehamnida"}, {kr:"네", en:"yes", pron:"Ne"},
+            {kr:"아니요", en:"no", pron:"Aniyo"}, {kr:"저", en:"i", pron:"Jeo"}, {kr:"사람", en:"person", pron:"Saram"}, {kr:"친구", en:"friend", pron:"Chingu"}, {kr:"이름", en:"name", pron:"Ireum"},
+            {kr:"한국", en:"korea", pron:"Hanguk"}, {kr:"미국", en:"usa", pron:"Miguk"}, {kr:"오늘", en:"today", pron:"Oneul"}, {kr:"내일", en:"tomorrow", pron:"Naeil"}, {kr:"지금", en:"now", pron:"Jigeum"},
+            {kr:"시간", en:"time", pron:"Sigan"}, {kr:"날씨", en:"weather", pron:"Nalssi"}, {kr:"좋아요", en:"good", pron:"Joayo"}, {kr:"싫어요", en:"bad", pron:"Sireoyo"}, {kr:"도와주세요", en:"help me", pron:"Dowajuseyo"}
+        ]
+    };
+
+    let currentCat = 'cafe';
+    let currentIndex = 0;
+    let currentMode = 'EN_TO_KR';
+
+    function displayWord() {
+        const data = allData[currentCat][currentIndex];
+        const display = document.getElementById('main-word');
+        const pron = document.getElementById('pron-text');
+        const input = document.getElementById('answer-input');
+        
+        if(currentMode === 'EN_TO_KR') {
+            const engText = Array.isArray(data.en) ? data.en[0] : data.en;
+            display.innerText = engText.charAt(0).toUpperCase() + engText.slice(1);
+            pron.innerText = "";
+            input.placeholder = "Type in Korean...";
+        } else {
+            const korText = Array.isArray(data.kr) ? data.kr[0] : data.kr;
+            display.innerText = korText;
+            pron.innerText = `(${data.pron})`;
+            input.placeholder = "Type English meaning...";
+        }
+
+        document.getElementById('quiz-status').innerText = `Word ${currentIndex + 1} / ${allData[currentCat].length}`;
+        input.value = "";
+        input.focus();
+        document.getElementById('message').innerText = "";
+        document.getElementById('message').className = "";
+    }
+
+    function checkAnswer() {
+        const input = document.getElementById('answer-input').value.trim();
+        const data = allData[currentCat][currentIndex];
+        const msg = document.getElementById('message');
+        
+        let isCorrect = false;
+        let answerText = "";
+
+        if(currentMode === 'EN_TO_KR') {
+            const korAnswers = Array.isArray(data.kr) ? data.kr : [data.kr];
+            isCorrect = korAnswers.includes(input);
+            answerText = korAnswers.join(", ");
+        } else {
+            const engAnswers = Array.isArray(data.en) ? data.en : [data.en];
+            isCorrect = engAnswers.some(a => a.toLowerCase() === input.toLowerCase());
+            answerText = engAnswers.join(", ");
+        }
+        
+        if(isCorrect) {
+            msg.innerText = "Correct! ✨ Press Next.";
+            msg.className = "correct";
+        } else {
+            msg.innerText = `Wrong. Answer: ${answerText}`;
+            msg.className = "wrong";
+        }
+    }
+
+    function changeCategory(cat) {
+        currentCat = cat; currentIndex = 0;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        displayWord();
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('m-en-kr').classList.toggle('active', mode === 'EN_TO_KR');
+        document.getElementById('m-kr-en').classList.toggle('active', mode === 'KR_TO_EN');
+        displayWord();
+    }
+
+    function nextWord() { currentIndex = (currentIndex + 1) % allData[currentCat].length; displayWord(); }
+    function prevWord() { currentIndex = (currentIndex - 1 + allData[currentCat].length) % allData[currentCat].length; displayWord(); }
+    document.getElementById('answer-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') checkAnswer(); });
+
+    displayWord();
+</script>
+</body>
+</html>

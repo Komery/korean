@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㅇ' (100 Words)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        #intro-area { text-align: left; line-height: 1.6; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-align: center; margin-bottom: 20px; }
+        .content-box { background: #f0f7ff; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-bottom: 20px; font-size: 0.95rem; }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .wrong-tag { color: var(--error); font-weight: bold; }
+        .correct-tag { color: var(--success); font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #8: 'ㅇ' (100 Words)</div>
+        <div class="content-box">
+            <b>📋 학습 내용 (Learning Contents)</b><br>
+            • Nouns: 아침 Morning, 어머니 Mother, 영화 Movie, 음식 Food<br>
+            • Verbs: 오다 To come, 알다 To know, 웃다 To laugh, 읽다 To read<br>
+            • Adjectives: 어렵다 Difficult, 예쁘다 Pretty, 어둡다 Dark, 아프다 Sick/Hurt<br>
+            • Time: 어제 Yesterday, 오늘 Today, 오전 AM, 오후 PM, 언제 When
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="header"><span>Series: <b>'ㅇ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "아기", eng: "Baby", desc: "A very young child." },
+        { kor: "아들", eng: "Son", desc: "A male child." },
+        { kor: "아래", eng: "Below / Down", desc: "In a lower place or position." },
+        { kor: "아름답다", eng: "To be beautiful", desc: "Pleasing the senses aesthetically." },
+        { kor: "아마", eng: "Probably / Maybe", desc: "Used to express uncertainty." },
+        { kor: "아버지", eng: "Father", desc: "A male parent." },
+        { kor: "아빠", eng: "Dad", desc: "Informal way to say father." },
+        { kor: "아이", eng: "Child / Kid", desc: "A young human being." },
+        { kor: "아이스크림", eng: "Ice cream", desc: "A frozen sweet dessert." },
+        { kor: "아저씨", eng: "Middle-aged man", desc: "Used to address a man much older than you." },
+        { kor: "아주", eng: "Very / Extremely", desc: "To a high degree." },
+        { kor: "아주머니", eng: "Middle-aged woman", desc: "Used to address an older woman." },
+        { kor: "아침", eng: "Morning / Breakfast", desc: "The start of the day or the first meal." },
+        { kor: "아파트", eng: "Apartment", desc: "A suite of rooms forming one residence." },
+        { kor: "아프다", eng: "To be sick / hurt", desc: "Feeling physical pain." },
+        { kor: "안", eng: "Inside / Not", desc: "The interior, or a negation of a verb." },
+        { kor: "안경", eng: "Glasses", desc: "Lenses worn to correct vision." },
+        { kor: "안내", eng: "Guidance / Info", desc: "Providing information to others." },
+        { kor: "앉다", eng: "To sit", desc: "To rest one's weight on buttocks." },
+        { kor: "알다", eng: "To know", desc: "To have knowledge of something." },
+        { kor: "앞", eng: "Front", desc: "The side that faces forward." },
+        { kor: "애인", eng: "Lover / Partner", desc: "A person with whom one has a romantic relationship." },
+        { kor: "야구", eng: "Baseball", desc: "A ball game played with a bat." },
+        { kor: "약", eng: "Medicine / About", desc: "Treatment for illness, or approximately." },
+        { kor: "약속", eng: "Promise / Appointment", desc: "Agreeing to do something or meet." },
+        { kor: "양말", eng: "Socks", desc: "Cloth covering for the feet." },
+        { kor: "어깨", eng: "Shoulder", desc: "The part of the body between neck and arm." },
+        { kor: "어둡다", eng: "To be dark", desc: "With little or no light." },
+        { kor: "어디", eng: "Where", desc: "Question word for location." },
+        { kor: "어떤", eng: "What kind of", desc: "Used to ask about characteristics." },
+        { kor: "어렵다", eng: "To be difficult", desc: "Hard to do or understand." },
+        { kor: "어린이", eng: "Child", desc: "A young person (polite/formal)." },
+        { kor: "어머니", eng: "Mother", desc: "A female parent." },
+        { kor: "어머니", eng: "Mother", desc: "Formal term for mom." },
+        { kor: "어울리다", eng: "To suit / get along", desc: "To look good on someone or be social." },
+        { kor: "어제", eng: "Yesterday", desc: "The day before today." },
+        { kor: "언니", eng: "Older sister", desc: "Used by females for an older sister." },
+        { kor: "언제", eng: "When", desc: "Question word for time." },
+        { kor: "언제나", eng: "Always", desc: "At all times." },
+        { kor: "얼굴", eng: "Face", desc: "The front part of the head." },
+        { kor: "얼마", eng: "How much", desc: "Question word for price or amount." },
+        { kor: "얼음", eng: "Ice", desc: "Frozen water." },
+        { kor: "엄마", eng: "Mom", desc: "Informal way to say mother." },
+        { kor: "없다", eng: "To not exist / have", desc: "Opposite of '있다'." },
+        { kor: "여기", eng: "Here", desc: "This place." },
+        { kor: "여동생", eng: "Younger sister", desc: "A female younger sibling." },
+        { kor: "여러", eng: "Several", desc: "More than two but not many." },
+        { kor: "여름", eng: "Summer", desc: "The warmest season." },
+        { kor: "여보세요", eng: "Hello (phone)", desc: "Greeting used when answering the phone." },
+        { kor: "여섯", eng: "Six", desc: "The number 6 (Native Korean)." },
+        { kor: "여자", eng: "Woman / Female", desc: "An adult female human." },
+        { kor: "여행", eng: "Travel / Trip", desc: "Going to a different place." },
+        { kor: "역", eng: "Station", desc: "A stopping place for trains or subways." },
+        { kor: "역사", eng: "History", desc: "The study of past events." },
+        { kor: "연락", eng: "Contact", desc: "Communicating with someone." },
+        { kor: "연세", eng: "Age (honorific)", desc: "Polite way to say a senior's age." },
+        { kor: "연습", eng: "Practice", desc: "Doing something repeatedly to improve." },
+        { kor: "연필", eng: "Pencil", desc: "Instrument for writing with graphite." },
+        { kor: "열", eng: "Ten / Heat", desc: "The number 10, or high temperature." },
+        { kor: "열다", eng: "To open", desc: "To move a door or lid to allow access." },
+        { kor: "열심히", eng: "Hard / Diligently", desc: "With great effort." },
+        { kor: "영업", eng: "Business / Open", desc: "Operating a shop or business." },
+        { kor: "영어", eng: "English", desc: "The language of the UK and US." },
+        { kor: "영화", eng: "Movie", desc: "A story shown in moving pictures." },
+        { kor: "영화관", eng: "Cinema", desc: "A theater where movies are shown." },
+        { kor: "옆", eng: "Beside / Side", desc: "The area next to something." },
+        { kor: "예", eng: "Yes / Example", desc: "Polite agreement, or an instance." },
+        { kor: "예쁘다", eng: "To be pretty", desc: "Attractive in a delicate way." },
+        { kor: "예약", eng: "Reservation", desc: "Booking something in advance." },
+        { kor: "오늘", eng: "Today", desc: "This present day." },
+        { kor: "오래", eng: "For a long time", desc: "A long duration." },
+        { kor: "오래간만", eng: "After a long time", desc: "Long since we last met." },
+        { kor: "오른쪽", eng: "Right side", desc: "The opposite of left." },
+        { kor: "오빠", eng: "Older brother", desc: "Used by females for an older brother." },
+        { kor: "오시다", eng: "To come (honorific)", desc: "Polite way to say someone comes." },
+        { kor: "오전", eng: "AM / Morning", desc: "Before noon." },
+        { kor: "오후", eng: "PM / Afternoon", desc: "After noon." },
+        { kor: "오다", eng: "To come", desc: "To move toward the speaker." },
+        { kor: "올해", eng: "This year", desc: "The current year." },
+        { kor: "옷", eng: "Clothes", desc: "Garments worn on the body." },
+        { kor: "왜", eng: "Why", desc: "Question word for reason." },
+        { kor: "외국", eng: "Foreign country", desc: "Any country other than one's own." },
+        { kor: "외국어", eng: "Foreign language", desc: "A language other than your native one." },
+        { kor: "왼쪽", eng: "Left side", desc: "The opposite of right." },
+        { kor: "요리", eng: "Cooking", desc: "Preparing food by heating it." },
+        { kor: "요즘", eng: "Nowadays", desc: "In the present time." },
+        { kor: "우리", eng: "We / Our", desc: "Used to refer to oneself and others." },
+        { kor: "우산", eng: "Umbrella", desc: "Device used for protection from rain." },
+        { kor: "우유", eng: "Milk", desc: "White liquid produced by cows." },
+        { kor: "우체국", eng: "Post office", desc: "Place where mail is handled." },
+        { kor: "운동", eng: "Exercise / Sports", desc: "Physical activity to stay fit." },
+        { kor: "운전", eng: "Driving", desc: "Operating a motor vehicle." },
+        { kor: "울다", eng: "To cry", desc: "To shed tears from the eyes." },
+        { kor: "웃다", eng: "To laugh / smile", desc: "Expressing joy with face or sound." },
+        { kor: "원", eng: "Won (Currency)", desc: "The unit of money in Korea." },
+        { kor: "위", eng: "Above / Top / Stomach", desc: "Upper position, or the organ." },
+        { kor: "위험하다", eng: "To be dangerous", desc: "Able or likely to cause harm." },
+        { kor: "유명하다", eng: "To be famous", desc: "Known by many people." },
+        { kor: "육", eng: "Six", desc: "The number 6 (Sino-Korean)." },
+        { kor: "은행", eng: "Bank", desc: "Financial institution for money." },
+        { kor: "음료수", eng: "Beverage / Drink", desc: "A liquid for drinking." },
+        { kor: "음식", eng: "Food", desc: "Substance eaten for nutrition." },
+        { kor: "음악", eng: "Music", desc: "Vocal or instrumental sounds." },
+        { kor: "의사", eng: "Doctor", desc: "A person qualified to practice medicine." },
+        { kor: "의자", eng: "Chair", desc: "A seat for one person with a back." },
+        { kor: "이", eng: "This / Tooth / Two", desc: "Near the speaker, dental part, or number 2." },
+        { kor: "이름", eng: "Name", desc: "A word by which someone is known." },
+        { kor: "이번", eng: "This time", desc: "The current occasion." },
+        { kor: "이사", eng: "Moving (house)", desc: "Changing where you live." },
+        { kor: "이야기", eng: "Story / Talk", desc: "An account of events or conversation." },
+        { kor: "이용하다", eng: "To use", desc: "To make use of something." },
+        { kor: "이유", eng: "Reason", desc: "A cause or explanation for an action." },
+        { kor: "이제", eng: "Now", desc: "At the present moment." },
+        { kor: "일", eng: "Work / Day / One", desc: "Job, date counter, or number 1." },
+        { kor: "일어나다", eng: "To wake up / stand", desc: "Getting out of bed or standing up." },
+        { kor: "일요일", eng: "Sunday", desc: "The first day of the week." },
+        { kor: "읽다", eng: "To read", desc: "To look at and comprehend written words." },
+        { kor: "입", eng: "Mouth", desc: "The opening for taking in food." },
+        { kor: "입구", eng: "Entrance", desc: "An opening that allows access." },
+        { kor: "입다", eng: "To wear (clothes)", desc: "To put on garments." },
+        { kor: "있다", eng: "To exist / have", desc: "To be present or in possession." }
+    ];
+
+    let score = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span class="correct-tag">✔ 정답입니다! (Correct)</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span class="wrong-tag">✘ 오답입니다. (Wrong Choice)</span><br>` +
+                                       `방금 누르신 <b>'${item.kor}'</b>의 뜻은 <b style="color:#2c3e50;">'${item.eng}'</b>입니다.<br>` +
+                                       `<small>(${item.desc})</small><br><hr style="border:0; border-top:1px solid #eee; margin:10px 0;">` +
+                                       `정답은 <b class="correct-tag">'${correct.kor}'</b> (${correct.eng}) 입니다.`;
+                    
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>

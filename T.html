@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Quiz - 'ㅌ' (100 Words with Study Guide)</title>
+    <style>
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f5f7fa; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        .intro-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 15px; }
+        .study-guide { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; line-height: 1.6; max-height: 300px; overflow-y: auto; }
+        .study-guide b { color: var(--primary); }
+        .start-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #quiz-area { display: none; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .eng-word { font-size: 1.6rem; font-weight: bold; color: #2c3e50; margin: 20px 0; min-height: 4rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid #edeff2; padding: 14px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; text-align: left; padding-left: 15px; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.wrong { background-color: var(--error); border-color: var(--error); color: white; }
+        .explanation { margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #fff9f9; border: 1px solid #f8d7da; font-size: 0.95rem; color: #444; display: none; text-align: left; line-height: 1.5; }
+        #next-btn { margin-top: 15px; width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: bold; display: none; cursor: pointer; }
+        .progress-bar { height: 5px; background: #eee; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+        #progress { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="intro-area">
+        <div class="intro-title">Series #12: 'ㅌ' Study & Quiz</div>
+        <div class="study-guide">
+            <b>[Nouns]</b><br>
+            토끼(Rabbit), 태양(Sun), 택시(Taxi), 트럭(Truck), 팀(Team), 테이블(Table), 텔레비전(TV), 통장(Bankbook), 태풍(Typhoon), 통화(Call)<br><br>
+            <b>[Verbs]</b><br>
+            타다(Ride/Burn), 태우다(Give a ride), 터지다(Burst), 틀리다(Be wrong), 통하다(Connect), 퇴근하다(Leave work)<br><br>
+            <b>[Adjectives]</b><br>
+            특별하다(Special), 튼튼하다(Strong), 투명하다(Transparent), 틀림없다(Certain)<br><br>
+            <b>[Others]</b><br>
+            특히(Especially), 토요일(Saturday), 퇴근(Leave office), 태권도(Taekwondo)
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Start 100-Word Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div class="progress-bar"><div id="progress"></div></div>
+        <div class="header"><span>Series: <b>'ㅌ'</b></span><span>Score: <b id="score">0</b></span></div>
+        <div id="eng-word" class="eng-word">Loading...</div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+</div>
+
+<script>
+    const vocabList = [
+        { kor: "타다", eng: "To ride / burn", desc: "Using transport or combustion." },
+        { kor: "태우다", eng: "To give a ride / burn something", desc: "Taking someone in a car or burning an object." },
+        { kor: "태도", eng: "Attitude", desc: "Way of thinking or behaving." },
+        { kor: "태양", eng: "Sun", desc: "The star at the center of our system." },
+        { kor: "태풍", eng: "Typhoon", desc: "Tropical storm." },
+        { kor: "택배", eng: "Delivery", desc: "Door-to-door courier service." },
+        { kor: "택시", eng: "Taxi", desc: "Paid car transport." },
+        { kor: "탤런트", eng: "TV Actor / Talent", desc: "Famous TV personality." },
+        { kor: "터지다", eng: "To burst / explode", desc: "Breaking open suddenly." },
+        { kor: "턱", eng: "Chin / Jaw", desc: "Lower part of the face." },
+        { kor: "턴", eng: "Turn", desc: "A rotation or one's sequence." },
+        { kor: "털", eng: "Hair / Fur", desc: "Hair on body or animal fur." },
+        { kor: "털다", eng: "To dust / shake off", desc: "Removing dust or emptying." },
+        { kor: "테니스", eng: "Tennis", desc: "Racket sport." },
+        { kor: "테이블", eng: "Table", desc: "Furniture for eating or working." },
+        { kor: "테이프", eng: "Tape", desc: "Adhesive or recording tape." },
+        { kor: "테스트", eng: "Test", desc: "Examination or trial." },
+        { kor: "데이터", eng: "Data", desc: "Information (includes 'ㅌ')." },
+        { kor: "텍스트", eng: "Text", desc: "Written words." },
+        { kor: "텔레비전", eng: "Television", desc: "TV set." },
+        { kor: "토끼", eng: "Rabbit", desc: "Long-eared animal." },
+        { kor: "토론", eng: "Discussion / Debate", desc: "Formal exchange of ideas." },
+        { kor: "토마토", eng: "Tomato", desc: "Red fruit used as vegetable." },
+        { kor: "토요일", eng: "Saturday", desc: "Day before Sunday." },
+        { kor: "토하다", eng: "To vomit", desc: "Throwing up." },
+        { kor: "통", eng: "Bucket / Counter for objects", desc: "A container or unit for letters/calls." },
+        { kor: "통과", eng: "Passing", desc: "Going through or passing a test." },
+        { kor: "통계", eng: "Statistics", desc: "Numerical data analysis." },
+        { kor: "통로", eng: "Passage / Aisle", desc: "Path between sections." },
+        { kor: "통역", eng: "Interpretation", desc: "Oral translation." },
+        { kor: "통장", eng: "Bankbook", desc: "Book for bank transactions." },
+        { kor: "통증", eng: "Pain", desc: "Physical ache." },
+        { kor: "통화", eng: "Phone call / Currency", desc: "Calling someone or money unit." },
+        { kor: "통하다", eng: "To go through / connect", desc: "Communication or air flow." },
+        { kor: "퇴근", eng: "Leaving work", desc: "Finish office hours." },
+        { kor: "퇴근하다", eng: "To leave work", desc: "Verb form of finish office hours." },
+        { kor: "퇴직", eng: "Retirement", desc: "Leaving a job permanently." },
+        { kor: "퇴학", eng: "Expulsion", desc: "Being kicked out of school." },
+        { kor: "투표", eng: "Vote", desc: "Casting a ballot." },
+        { kor: "투자", eng: "Investment", desc: "Putting money for profit." },
+        { kor: "투명하다", eng: "To be transparent", desc: "Clear enough to see through." },
+        { kor: "트럭", eng: "Truck", desc: "Large transport vehicle." },
+        { kor: "트리", eng: "Tree", desc: "Usually Christmas tree." },
+        { kor: "트림", eng: "Burp", desc: "Gas from stomach." },
+        { kor: "특권", eng: "Privilege", desc: "Special right." },
+        { kor: "특기", eng: "Specialty / Talent", desc: "Skill one is good at." },
+        { kor: "특수", eng: "Special / Unique", desc: "Distinct from usual." },
+        { kor: "특징", eng: "Characteristic", desc: "Unique feature." },
+        { kor: "특히", eng: "Especially", desc: "Particularly." },
+        { kor: "특별하다", eng: "To be special", desc: "Not ordinary." },
+        { kor: "튼튼하다", eng: "To be strong / sturdy", desc: "Solid and durable." },
+        { kor: "틀", eng: "Frame / Mold", desc: "Structure to hold shape." },
+        { kor: "틀다", eng: "To turn on / twist", desc: "Turning a faucet or music." },
+        { kor: "틀리다", eng: "To be wrong", desc: "Incorrect." },
+        { kor: "틀림없다", eng: "To be certain", desc: "No mistake about it." },
+        { kor: "티켓", eng: "Ticket", desc: "Entry pass." },
+        { kor: "티셔츠", eng: "T-shirt", desc: "Casual shirt." },
+        { kor: "팀", eng: "Team", desc: "Group working together." },
+        { kor: "팁", eng: "Tip", desc: "Gratuity or helpful hint." },
+        { kor: "타이틀", eng: "Title", desc: "Name of a work." },
+        { kor: "타임", eng: "Time", desc: "Duration or moment." },
+        { kor: "타이어", eng: "Tire", desc: "Rubber wheel part." },
+        { kor: "타자기", eng: "Typewriter", desc: "Old typing machine." },
+        { kor: "태권도", eng: "Taekwondo", desc: "Korean martial art." },
+        { kor: "터미널", eng: "Terminal", desc: "Bus or airport station." },
+        { kor: "터치", eng: "Touch", desc: "Contact with hand." },
+        { kor: "텀블러", eng: "Tumbler", desc: "Insulated cup." },
+        { kor: "토크", eng: "Talk", desc: "Conversation or lecture." },
+        { kor: "토스트", eng: "Toast", desc: "Grilled bread." },
+        { kor: "토양", eng: "Soil", desc: "Earth/ground for plants." },
+        { kor: "통제", eng: "Control / Restriction", desc: "Regulating movement." },
+        { kor: "통합", eng: "Integration", desc: "Combining into one." },
+        { kor: "트라우마", eng: "Trauma", desc: "Emotional shock." },
+        { kor: "트러블", eng: "Trouble", desc: "Problem or conflict." },
+        { kor: "트레이닝", eng: "Training", desc: "Exercise or practice." },
+        { kor: "트렌드", eng: "Trend", desc: "Current fashion/style." },
+        { kor: "트로피", eng: "Trophy", desc: "Award cup." },
+        { kor: "특가", eng: "Special price", desc: "Discounted price." },
+        { kor: "특집", eng: "Special edition", desc: "Special feature in media." },
+        { kor: "팀워크", eng: "Teamwork", desc: "Collaborative effort." },
+        { kor: "티끌", eng: "Dust / Speck", desc: "Tiny bit of dirt." },
+        { kor: "태아", eng: "Fetus", desc: "Unborn baby." },
+        { kor: "퇴치", eng: "Eradication", desc: "Getting rid of pests." },
+        { kor: "투덜대다", eng: "To grumble", desc: "Complaining under breath." },
+        { kor: "튕기다", eng: "To bounce / strum", desc: "Bouncing a ball or guitar string." },
+        { kor: "톡톡", eng: "Tapping sound", desc: "Sound of light hitting." },
+        { kor: "퉁퉁", eng: "Swollen", desc: "Puffy appearance." },
+        { kor: "테두리", eng: "Border / Edge", desc: "Outer rim." },
+        { kor: "투수", eng: "Pitcher", desc: "Baseball player who throws." },
+        { kor: "투쟁", eng: "Struggle / Fight", desc: "Intense conflict." },
+        { kor: "투혼", eng: "Fighting spirit", desc: "Determination to win." },
+        { kor: "토박이", eng: "Native", desc: "Person born/raised in a place." },
+        { kor: "통통하다", eng: "To be chubby", desc: "Pleasantly plump." },
+        { kor: "툭", eng: "With a pop/nudge", desc: "Mimetic word for a light hit." },
+        { kor: "트위스트", eng: "Twist", desc: "Type of dance or turn." },
+        { kor: "티나다", eng: "To be obvious", desc: "Showing clearly." },
+        { kor: "터무니없다", eng: "To be absurd", desc: "Ridiculous or groundless." },
+        { kor: "탈출", eng: "Escape", desc: "Getting out of danger (includes 'ㅌ')." },
+        { kor: "태연하다", eng: "To be calm", desc: "Cool and collected." },
+        { kor: "틈", eng: "Gap / Crack", desc: "Space between or spare time." }
+    ];
+
+    let score = 0;
+    let currentIdx = 0;
+    let isAnswered = false;
+
+    function startQuiz() {
+        document.getElementById('intro-area').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (currentIdx >= 100) {
+            alert("대단합니다! 'ㅌ' 파트 100단어 마스터!");
+            return;
+        }
+        isAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        
+        const correct = vocabList[Math.floor(Math.random() * vocabList.length)];
+        document.getElementById('eng-word').innerText = correct.eng;
+        
+        let choices = [correct];
+        while (choices.length < 4) {
+            let rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!choices.some(c => c.kor === rand.kor)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        choices.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = item.kor;
+            btn.onclick = () => {
+                if (isAnswered) return;
+                isAnswered = true;
+                const expDiv = document.getElementById('explanation');
+                expDiv.style.display = 'block';
+
+                if (item.kor === correct.kor) {
+                    btn.classList.add('correct');
+                    score += 10;
+                    expDiv.innerHTML = `<span style="color:var(--success); font-weight:bold;">✔ Correct!</span><br><b>${item.kor}</b>: ${item.desc}`;
+                } else {
+                    btn.classList.add('wrong');
+                    expDiv.innerHTML = `<span style="color:var(--error); font-weight:bold;">✘ Wrong</span><br><b>'${item.kor}'</b> is <b>'${item.eng}'</b>.<br>Correct answer: <b style="color:var(--success);">'${correct.kor}'</b>`;
+                    Array.from(optionsDiv.children).forEach(b => {
+                        if (b.innerText === correct.kor) b.classList.add('correct');
+                    });
+                }
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+                currentIdx++;
+                document.getElementById('progress').style.width = (currentIdx / 100 * 100) + "%";
+            };
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>
