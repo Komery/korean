@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangeul Master Pro (Toggle Version)</title>
+    <title>Hangeul Master Pro (Toggle Edition)</title>
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #e67e22;
+            --youglish: #e74c3c;
+            --type-btn: #3498db;
             --bg: #f8f9fa;
             --key-bg: #ffffff;
             --selected-bg: #e67e22;
@@ -33,7 +35,7 @@
 
         .display-unit {
             background: #fffaf0;
-            padding: 25px 15px;
+            padding: 20px 15px;
             border-radius: 20px;
             text-align: center;
             border: 2px solid #ffecb3;
@@ -44,27 +46,62 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
+        .sentence-display {
+            font-size: 20px;
+            color: #7f8c8d;
+            min-height: 24px;
+            margin-bottom: 8px;
+            word-break: break-all;
+            padding: 0 10px;
+            font-weight: 500;
+        }
+
         .combined-text {
-            font-size: 80px;
+            font-size: 60px;
             font-weight: bold;
             color: var(--primary);
-            margin: 0;
-            line-height: 1.2;
-            min-height: 96px;
+            margin: 5px 0;
+            line-height: 1.1;
         }
 
         .pron-main {
-            font-size: 28px;
+            font-size: 22px;
             color: var(--accent);
             font-weight: bold;
-            margin-top: 5px;
+            height: 26px;
         }
 
-        .pron-formula {
-            font-size: 14px;
-            color: #95a5a6;
-            margin-top: 5px;
+        .button-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        .enter-btn { background: #27ae60; flex: 1.5; }
+        .type-btn { background: var(--type-btn); flex: 1; }
+        .space-btn { background: #95a5a6; flex: 1; }
+        .back-btn { background: #7f8c8d; }
+        .speak-btn { background: var(--accent); }
+        .yg-btn { background: var(--youglish); }
 
         .grid-label {
             font-weight: bold;
@@ -82,26 +119,30 @@
         }
 
         .key {
-            padding: 12px 0;
+            padding: 8px 0;
             border: 1px solid #edf2f7;
             border-radius: 12px;
             cursor: pointer;
             background: var(--key-bg);
             text-align: center;
-            font-weight: 600;
-            font-size: 18px;
-            transition: all 0.2s ease;
-            user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: 0.2s;
         }
 
-        .key:hover { background: #fff5eb; border-color: var(--accent); }
+        .key span.k-char { font-size: 18px; font-weight: 600; color: var(--primary); }
+        .key span.e-pron { font-size: 11px; color: #bdc3c7; }
+
+        .key:hover { border-color: var(--accent); background: #fff5eb; }
 
         .key.selected {
             background: var(--selected-bg);
-            color: white;
             border-color: var(--selected-bg);
-            transform: scale(0.95);
         }
+
+        .key.selected span.k-char, 
+        .key.selected span.e-pron { color: white; }
 
         .btn-reset {
             grid-column: 1 / -1;
@@ -116,95 +157,70 @@
             cursor: pointer;
             font-weight: bold;
         }
-
-        .speak-btn {
-            margin-top: 15px;
-            padding: 12px 25px;
-            border: none;
-            background: var(--accent);
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
-        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="display-unit">
+        <div id="sentence-box" class="sentence-display">Build your sentence...</div>
         <div id="target-char" class="combined-text">-</div>
         <div id="target-pron-main" class="pron-main">-</div>
-        <div id="target-formula" class="pron-formula">Select Init & Vowel</div>
-        <button class="speak-btn" onclick="speak()">🔊 Pronounce</button>
+        
+        <div class="button-group">
+            <button class="btn enter-btn" onclick="addToSentence()">➕ Enter</button>
+            <button class="btn space-btn" onclick="addSpace()">⎵ Space</button>
+            <button class="btn type-btn" onclick="openTypingPrompt()">⌨️ Type</button>
+        </div>
+        <div class="button-group">
+            <button class="btn speak-btn" onclick="speak()">🔊 Read</button>
+            <button class="btn yg-btn" onclick="openYouGlish()">📺 YouGlish</button>
+            <button class="btn back-btn" onclick="backspace()">⌫</button>
+        </div>
     </div>
 
-    <div class="grid-label">1. 자음 (Consonants)</div>
+    <div class="grid-label">1. 초성 (Initial Consonants)</div>
     <div id="init-grid" class="grid"></div>
 
     <div class="grid-label">2. 기본 모음 (Basic Vowels)</div>
     <div id="vow1-grid" class="grid"></div>
     
-    <div class="grid-label">3. 조합용 모음 (Combination)</div>
+    <div class="grid-label">3. 조합 모음 (Combination)</div>
     <div id="vow2-grid" class="grid"></div>
-    <div class="btn-reset" onclick="selectVow2(null)">Clear 2nd Vowel</div>
+    <div class="btn-reset" onclick="resetGrid('vow2-grid')">Clear 2nd Vowel</div>
 
-    <div class="grid-label">4. 받침 (Final Consonant)</div>
+    <div class="grid-label">4. 기본 받침 (Basic Batchim)</div>
     <div id="batch-primary-grid" class="grid"></div>
 
-    <div class="grid-label" style="font-size:11px; color:#7f8c8d;">Advanced Batchim</div>
+    <div class="grid-label" style="font-size:11px; color:#7f8c8d;">Complex Batchim (Double/Mixed)</div>
     <div id="batch-advanced-grid" class="grid"></div>
-    <div class="btn-reset" onclick="selectBatch(null)">No Batchim</div>
+    <div class="btn-reset" onclick="resetGrid('batch-')">No Batchim</div>
 </div>
 
 <script>
+// 유니코드 표준 순서
 const CHOSUNG=["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
-const JUNGSUNG=["ㅏ","ㅑ","ㅐ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+const JUNGSUNG=["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
 const JONGSUNG=["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
 
-const inits=[
-    {k:'ㄱ',e:'G'},{k:'ㄴ',e:'N'},{k:'ㄷ',e:'D'},{k:'ㄹ',e:'R'},
-    {k:'ㅁ',e:'M'},{k:'ㅂ',e:'B'},{k:'ㅅ',e:'S'},
-    {k:'ㅇ',e:''},{k:'ㅈ',e:'J'},{k:'ㅊ',e:'CH'},
-    {k:'ㅋ',e:'K'},{k:'ㅌ',e:'T'},{k:'ㅍ',e:'P'},{k:'ㅎ',e:'H'},
-    {k:'ㄲ',e:'KK'},{k:'ㄸ',e:'TT'},{k:'ㅃ',e:'PP'},
-    {k:'ㅆ',e:'SS'},{k:'ㅉ',e:'JJ'}
-];
-
-// 요청하신 순서대로 재정렬
-const vows1=[
-    {k:'ㅏ',e:'A'},{k:'ㅑ',e:'YA'},{k:'ㅓ',e:'EO'},{k:'ㅕ',e:'YEO'},
-    {k:'ㅗ',e:'O'},{k:'ㅛ',e:'YO'},{k:'ㅜ',e:'U'},{k:'ㅠ',e:'YU'},
-    {k:'ㅡ',e:'EU'},{k:'ㅣ',e:'I'}
-];
-
-const vows2=[{k:'ㅏ',e:'A'},{k:'ㅐ',e:'AE'},{k:'ㅓ',e:'EO'},{k:'ㅔ',e:'E'},{k:'ㅣ',e:'I'}];
-
-const batchPrimary=[
-    {k:'ㄱ',e:'K'},{k:'ㄴ',e:'N'},{k:'ㄷ',e:'T'},
-    {k:'ㄹ',e:'L'},{k:'ㅁ',e:'M'},{k:'ㅂ',e:'P'},
-    {k:'ㅅ',e:'T'},{k:'ㅇ',e:'NG'},{k:'ㅈ',e:'T'},
-    {k:'ㅊ',e:'T'},{k:'ㅋ',e:'K'},{k:'ㅌ',e:'T'},
-    {k:'ㅍ',e:'P'},{k:'ㅎ',e:'T'}
-];
-
-const batchAdvanced=[
-    {k:'ㄲ',e:'K'},{k:'ㅆ',e:'T'},
-    {k:'ㄳ',e:'K'},{k:'ㄵ',e:'N'},{k:'ㄶ',e:'N'},
-    {k:'ㄺ',e:'K'},{k:'ㄻ',e:'M'},{k:'ㄼ',e:'L'},
-    {k:'ㄽ',e:'L'},{k:'ㄾ',e:'L'},{k:'ㄿ',e:'P'},
-    {k:'ㅀ',e:'L'},{k:'ㅄ',e:'P'}
-];
+const inits=[{k:'ㄱ',e:'g'},{k:'ㄴ',e:'n'},{k:'ㄷ',e:'d'},{k:'ㄹ',e:'r'},{k:'ㅁ',e:'m'},{k:'ㅂ',e:'b'},{k:'ㅅ',e:'s'},{k:'ㅇ',e:'-'},{k:'ㅈ',e:'j'},{k:'ㅊ',e:'ch'},{k:'ㅋ',e:'k'},{k:'ㅌ',e:'t'},{k:'ㅍ',e:'p'},{k:'ㅎ',e:'h'},{k:'ㄲ',e:'kk'},{k:'ㄸ',e:'tt'},{k:'ㅃ',e:'pp'},{k:'ㅆ',e:'ss'},{k:'ㅉ',e:'jj'}];
+const vows1=[{k:'ㅏ',e:'a'},{k:'ㅑ',e:'ya'},{k:'ㅓ',e:'eo'},{k:'ㅕ',e:'yeo'},{k:'ㅗ',e:'o'},{k:'ㅛ',e:'yo'},{k:'ㅜ',e:'u'},{k:'ㅠ',e:'yu'},{k:'ㅡ',e:'eu'},{k:'ㅣ',e:'i'}];
+const vows2=[{k:'ㅏ',e:'a'},{k:'ㅐ',e:'ae'},{k:'ㅓ',e:'eo'},{k:'ㅔ',e:'e'},{k:'ㅣ',e:'i'}];
+const batchPrimary=[{k:'ㄱ',e:'k'},{k:'ㄴ',e:'n'},{k:'ㄷ',e:'t'},{k:'ㄹ',e:'l'},{k:'ㅁ',e:'m'},{k:'ㅂ',e:'p'},{k:'ㅅ',e:'t'},{k:'ㅇ',e:'ng'},{k:'ㅈ',e:'t'},{k:'ㅊ',e:'t'},{k:'ㅋ',e:'k'},{k:'ㅌ',e:'t'},{k:'ㅍ',e:'p'},{k:'ㅎ',e:'t'}];
+const batchAdvanced=[{k:'ㄲ',e:'k'},{k:'ㅆ',e:'t'},{k:'ㄳ',e:'k'},{k:'ㄵ',e:'n'},{k:'ㄶ',e:'n'},{k:'ㄺ',e:'k'},{k:'ㄻ',e:'m'},{k:'ㄼ',e:'l'},{k:'ㄽ',e:'l'},{k:'ㄾ',e:'l'},{k:'ㄿ',e:'p'},{k:'ㅀ',e:'l'},{k:'ㅄ',e:'p'}];
 
 const vowelMap={'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
-const vPronMap={'ㅏ':'A','ㅐ':'AE','ㅑ':'YA','ㅒ':'YAE','ㅓ':'EO','ㅔ':'E','ㅕ':'YEO','ㅖ':'YE','ㅗ':'O','ㅘ':'WA','ㅙ':'WAE','ㅚ':'OE','ㅛ':'YO','ㅜ':'U','ㅝ':'WO','ㅞ':'WE','ㅟ':'WI','ㅠ':'YU','ㅡ':'EU','ㅢ':'UI','ㅣ':'I'};
+const vPronMap={'ㅏ':'a','ㅐ':'ae','ㅑ':'ya','ㅒ':'yae','ㅓ':'eo','ㅔ':'e','ㅕ':'yeo','ㅖ':'ye','ㅗ':'o','ㅘ':'wa','ㅙ':'wae','ㅚ':'oe','ㅛ':'yo','ㅜ':'u','ㅝ':'wo','ㅞ':'we','ㅟ':'wi','ㅠ':'yu','ㅡ':'eu','ㅢ':'ui','ㅣ':'i'};
 
-let sInit = null;
-let sVow1 = null;
-let sVow2 = null;
-let sBatch = null;
+let sInit = null, sVow1 = null, sVow2 = null, sBatch = null, sentence = "";
+
+function init() {
+    renderGrid("init-grid", inits, item => sInit = item);
+    renderGrid("vow1-grid", vows1, item => sVow1 = item);
+    renderGrid("vow2-grid", vows2, item => sVow2 = item);
+    renderGrid("batch-primary-grid", batchPrimary, item => sBatch = item);
+    renderGrid("batch-advanced-grid", batchAdvanced, item => sBatch = item);
+}
 
 function renderGrid(id, data, onSelect) {
     const grid = document.getElementById(id);
@@ -212,7 +228,7 @@ function renderGrid(id, data, onSelect) {
     data.forEach(item => {
         const btn = document.createElement("div");
         btn.className = "key";
-        btn.innerText = item.k;
+        btn.innerHTML = `<span class="k-char">${item.k}</span><span class="e-pron">${item.e}</span>`;
         btn.onclick = () => handleSelection(id, item, btn, onSelect);
         grid.appendChild(btn);
     });
@@ -221,7 +237,6 @@ function renderGrid(id, data, onSelect) {
 function handleSelection(id, item, btn, onSelect) {
     const isAlreadySelected = btn.classList.contains("selected");
 
-    // 섹션 내 다른 버튼 해제
     if(id.includes("batch")) {
         document.querySelectorAll('[id^="batch-"] .key').forEach(k => k.classList.remove("selected"));
     } else {
@@ -229,95 +244,137 @@ function handleSelection(id, item, btn, onSelect) {
     }
 
     if (isAlreadySelected) {
-        // 이미 선택된 걸 다시 누름 -> 취소
         btn.classList.remove("selected");
         if(id === "init-grid") sInit = null;
-        if(id === "vow1-grid") sVow1 = null;
-        if(id === "vow2-grid") sVow2 = null;
-        if(id.includes("batch")) sBatch = null;
+        else if(id === "vow1-grid") sVow1 = null;
+        else if(id === "vow2-grid") sVow2 = null;
+        else if(id.includes("batch")) sBatch = null;
     } else {
-        // 새로 선택
         btn.classList.add("selected");
         onSelect(item);
     }
     render();
 }
 
-function selectVow2(v) {
-    sVow2 = v;
-    document.querySelectorAll('#vow2-grid .key').forEach(k => k.classList.remove("selected"));
+function resetGrid(prefix) {
+    if (prefix === 'vow2-grid') {
+        sVow2 = null;
+        document.querySelectorAll('#vow2-grid .key').forEach(k => k.classList.remove("selected"));
+    } else if (prefix === 'batch-') {
+        sBatch = null;
+        document.querySelectorAll('[id^="batch-"] .key').forEach(k => k.classList.remove("selected"));
+    }
     render();
 }
 
-function selectBatch(v) {
-    sBatch = v;
-    document.querySelectorAll('[id^="batch-"] .key').forEach(k => k.classList.remove("selected"));
+function addToSentence() {
+    const char = document.getElementById("target-char").innerText;
+    if (char === "-" || char === "") return;
+    sentence += char;
+    updateSentenceUI();
+    resetSelections();
+}
+
+function addSpace() {
+    sentence += " ";
+    updateSentenceUI();
+}
+
+function openTypingPrompt() {
+    const input = prompt("연습하고 싶은 한글 단어나 문장을 입력하세요.\n Enter a Korean word or sentence to practice.");
+    if (input) {
+        sentence += input;
+        updateSentenceUI();
+    }
+}
+
+function backspace() {
+    if (sentence.length > 0) {
+        sentence = sentence.slice(0, -1);
+        updateSentenceUI();
+    }
+}
+
+function updateSentenceUI() {
+    const box = document.getElementById("sentence-box");
+    box.innerText = sentence || "Build your sentence...";
+    box.style.color = sentence ? "#2c3e50" : "#7f8c8d";
+}
+
+function resetSelections() {
+    sInit = sVow1 = sVow2 = sBatch = null;
+    document.querySelectorAll('.key').forEach(k => k.classList.remove("selected"));
     render();
 }
 
 function getFinalVowel() {
-    if (!sVow1) return { finalV: null, formula: "" };
-    let finalV = sVow1.k;
-    let formula = sVow1.e;
+    if (!sVow1 && !sVow2) return { finalV: null };
     
-    if (sVow2) {
+    // 두 모음이 모두 있을 때만 조합 시도
+    if (sVow1 && sVow2) {
         const combined = sVow1.k + sVow2.k;
-        if (vowelMap[combined]) {
-            finalV = vowelMap[combined];
-            formula = `${sVow1.e} + ${sVow2.e}`;
-        } else {
-            finalV = sVow2.k;
-            formula = sVow2.e;
-        }
+        if (vowelMap[combined]) return { finalV: vowelMap[combined] };
     }
-    return { finalV, formula };
+    
+    // 하나만 있을 때는 존재하는 것 우선, 둘 다 있지만 맵에 없을 때는 sVow2 우선
+    return { finalV: sVow2 ? sVow2.k : sVow1.k };
 }
 
 function render() {
     const targetChar = document.getElementById("target-char");
     const targetPron = document.getElementById("target-pron-main");
-    const targetFormula = document.getElementById("target-formula");
-
-    // 자음 또는 모음이 없는 경우
-    if (!sInit || !sVow1) {
-        targetChar.innerText = sInit ? sInit.k : (sVow1 ? sVow1.k : "-");
+    
+    const { finalV } = getFinalVowel();
+    
+    if (!sInit && !finalV) {
+        targetChar.innerText = "-";
         targetPron.innerText = "-";
-        targetFormula.innerText = "Select both Consonant & Vowel";
         return;
     }
 
-    const { finalV, formula } = getFinalVowel();
-    const char = String.fromCharCode((CHOSUNG.indexOf(sInit.k)*21 + JUNGSUNG.indexOf(finalV))*28 + (sBatch ? JONGSUNG.indexOf(sBatch.k) : 0) + 0xAC00);
+    if (!sInit || !finalV) {
+        targetChar.innerText = sInit ? sInit.k : finalV;
+        const rawPron = sInit ? sInit.e : (vPronMap[finalV] || "");
+        targetPron.innerText = rawPron.replace('-', '').toUpperCase() || "-";
+        return;
+    }
+
+    // 유니코드 공식에 따른 인덱스 찾기
+    const vIndex = JUNGSUNG.indexOf(finalV);
+    const bIndex = sBatch ? JONGSUNG.indexOf(sBatch.k) : 0;
+    const iIndex = CHOSUNG.indexOf(sInit.k);
     
-    const iP = sInit.e;
+    if (vIndex === -1) { // 안전장치: JUNGSUNG 배열에 없는 경우
+        targetChar.innerText = sInit.k + finalV;
+        targetPron.innerText = "-";
+        return;
+    }
+
+    const charCode = (iIndex * 21 + vIndex) * 28 + bIndex + 0xAC00;
+    const char = String.fromCharCode(charCode);
+    
+    const iP = sInit.e === '-' ? '' : sInit.e;
     const vP = vPronMap[finalV] || "";
     const bP = sBatch ? sBatch.e : "";
     
-    const totalPron = (iP + vP + bP).toUpperCase();
-    let formulaText = `${iP || "silent"} + ${formula}`;
-    if (bP) formulaText += ` + ${bP}`;
-    
     targetChar.innerText = char;
-    targetPron.innerText = totalPron;
-    targetFormula.innerText = `${formulaText} = ${totalPron}`;
+    targetPron.innerText = (iP + vP + bP).toUpperCase();
 }
 
 function speak() {
-    const char = document.getElementById("target-char").innerText;
-    if(char === "-" || char === "") return;
+    const textToRead = sentence || document.getElementById("target-char").innerText;
+    if(textToRead === "-" || textToRead === "") return;
     window.speechSynthesis.cancel();
-    const speech = new SpeechSynthesisUtterance(char);
+    const speech = new SpeechSynthesisUtterance(textToRead);
     speech.lang = "ko-KR";
     speech.rate = 0.8;
     window.speechSynthesis.speak(speech);
 }
 
-function init() {
-    renderGrid("init-grid", inits, item => sInit = item);
-    renderGrid("vow1-grid", vows1, item => sVow1 = item);
-    renderGrid("vow2-grid", vows2, item => sVow2 = item);
-    renderGrid("batch-primary-grid", batchPrimary, item => sBatch = item);
-    renderGrid("batch-advanced-grid", batchAdvanced, item => sBatch = item);
+function openYouGlish() {
+    const query = sentence || document.getElementById("target-char").innerText;
+    if(query === "-" || query === "") return;
+    window.open(`https://youglish.com/pronounce/${encodeURIComponent(query)}/korean`, '_blank');
 }
 
 init();
