@@ -3,102 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Korean Study App</title>
+<title>한글 Master Pro</title>
 
 <style>
+:root{
+--primary:#2c3e50;
+--accent:#e67e22;
+--bg:#f0f2f5;
+--key-bg:#ffffff;
+--selected-bg:#e67e22;
+--translate-bg:#27ae60;
+}
 
 body{
-font-family:system-ui;
-background:#f2f4f7;
+font-family:'Segoe UI',Roboto,sans-serif;
+background:var(--bg);
 margin:0;
-padding:20px;
+padding:15px;
 display:flex;
 justify-content:center;
 }
 
 .container{
-max-width:520px;
 width:100%;
+max-width:500px;
 background:white;
 padding:20px;
-border-radius:20px;
+border-radius:25px;
 box-shadow:0 10px 30px rgba(0,0,0,0.1);
 }
 
-.display{
-background:#fafafa;
-padding:20px;
-border-radius:15px;
+.display-unit{
+background:#fff;
+padding:25px 15px;
+border-radius:20px;
 text-align:center;
+border:3px solid #eee;
 margin-bottom:20px;
 }
 
-.sentence{
+.sentence-display{
 font-size:24px;
-font-weight:700;
+color:var(--primary);
 min-height:30px;
+margin-bottom:5px;
+font-weight:700;
+word-break:break-all;
 }
 
-.char{
+.translation-display{
+font-size:18px;
+color:var(--translate-bg);
+font-weight:600;
+margin-bottom:15px;
+min-height:22px;
+}
+
+.combined-text{
 font-size:70px;
 font-weight:900;
+color:var(--primary);
 margin:10px 0;
+line-height:1;
 }
 
-.roman{
-color:#e67e22;
-font-weight:700;
-font-size:20px;
+.pron-main{
+font-size:24px;
+color:var(--accent);
+font-weight:bold;
 }
 
-iframe{
-width:100%;
-height:120px;
+.button-group{
+display:flex;
+gap:8px;
+justify-content:center;
+margin-top:15px;
+flex-wrap:wrap;
+}
+
+.btn{
+padding:12px 10px;
 border:none;
-margin-top:10px;
-border-radius:10px;
+color:white;
+font-size:13px;
+font-weight:bold;
+border-radius:12px;
+cursor:pointer;
+flex:1;
+}
+
+.enter-btn{background:#2ecc71;}
+.type-btn{background:#3498db;}
+.speak-btn{background:#e67e22;}
+.yg-btn{background:#e74c3c;}
+.clear-btn{background:#c0392b;}
+.rd-btn{background:#8e44ad;margin-top:10px;width:100%;}
+.trans-link-btn{background:#4285F4;margin-top:5px;width:100%;}
+
+.grid-label{
+font-weight:bold;
+margin:25px 0 10px 0;
+color:var(--primary);
+font-size:15px;
 }
 
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(60px,1fr));
-gap:8px;
-margin-bottom:15px;
+grid-template-columns:repeat(auto-fill,minmax(65px,1fr));
+gap:10px;
 }
 
 .key{
-background:white;
-border:2px solid #eee;
-padding:10px;
-border-radius:10px;
-text-align:center;
-font-size:18px;
-font-weight:700;
+padding:12px 0;
+border:2px solid #f0f0f0;
+border-radius:15px;
 cursor:pointer;
+background:var(--key-bg);
+text-align:center;
+}
+
+.key span.k-char{
+font-size:20px;
+font-weight:700;
+color:var(--primary);
+display:block;
+}
+
+.key span.e-pron{
+font-size:11px;
+color:#aaa;
 }
 
 .key.selected{
-background:#e67e22;
+background:var(--selected-bg);
+border-color:var(--selected-bg);
+}
+
+.key.selected span{
 color:white;
-border-color:#e67e22;
 }
-
-button{
-border:none;
-padding:10px;
-border-radius:10px;
-cursor:pointer;
-font-weight:700;
-margin:4px;
-}
-
-.green{background:#2ecc71;color:white}
-.blue{background:#3498db;color:white}
-.orange{background:#e67e22;color:white}
-.red{background:#e74c3c;color:white}
-.purple{background:#8e44ad;color:white}
-
 </style>
 </head>
 
@@ -106,189 +149,213 @@ margin:4px;
 
 <div class="container">
 
-<div class="display">
+<div class="display-unit">
 
-<div id="sentence" class="sentence">
-Build sentence...
+<div id="sentence-box" class="sentence-display">
+Build your sentence...
 </div>
 
-<div id="char" class="char">-</div>
+<div id="translation-box" class="translation-display">
+Translation will appear here
+</div>
 
-<div id="roman" class="roman">-</div>
+<div id="target-char" class="combined-text">-</div>
+<div id="target-pron-main" class="pron-main">-</div>
 
-<iframe id="transFrame"></iframe>
+<div class="button-group">
+<button class="btn enter-btn" onclick="addToSentence()">➕ Enter</button>
+<button class="btn type-btn" onclick="openTypingPrompt()">⌨️ Type Word</button>
+</div>
 
-<button class="green" onclick="addChar()">Enter</button>
-<button class="blue" onclick="typeWord()">Type</button>
-<button class="orange" onclick="speak()">Speak</button>
-<button class="purple" onclick="randomWord()">Random</button>
-<button class="red" onclick="clearSentence()">Clear</button>
+<div class="button-group">
+<button class="btn speak-btn" onclick="speak()">🔊 Read</button>
+<button class="btn yg-btn" onclick="openYouGlish()">📺 YouGlish</button>
+<button class="btn clear-btn" onclick="clearAll()">🗑️ Clear</button>
+</div>
+
+<button class="btn rd-btn" onclick="loadRandomWord()">
+🎲 Get Random Study Word
+</button>
 
 </div>
 
-<h3>Initial</h3>
-<div id="initGrid" class="grid"></div>
+<div class="grid-label">Initial Consonants</div>
+<div id="init-grid" class="grid"></div>
 
-<h3>Vowel</h3>
-<div id="vowelGrid" class="grid"></div>
+<div class="grid-label">Vowels</div>
+<div id="vow-grid" class="grid"></div>
 
-<h3>Batchim</h3>
-<div id="batchGrid" class="grid"></div>
+<div class="grid-label">Batchim</div>
+<div id="batch-grid" class="grid"></div>
 
 </div>
 
 <script>
 
+const WORD_DB=[
+{k:"학교",e:"School"},
+{k:"사과",e:"Apple"},
+{k:"고양이",e:"Cat"},
+{k:"강아지",e:"Puppy"},
+{k:"우유",e:"Milk"},
+{k:"바나나",e:"Banana"},
+{k:"친구",e:"Friend"},
+{k:"사랑",e:"Love"},
+{k:"하늘",e:"Sky"},
+{k:"바다",e:"Sea"}
+];
+
 const CHO=["ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
 const JUNG=["ㅏ","ㅑ","ㅓ","ㅕ","ㅗ","ㅛ","ㅜ","ㅠ","ㅡ","ㅣ"];
 const JONG=["","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ"];
 
-const ROMAN={
-"ㄱ":"g","ㄴ":"n","ㄷ":"d","ㄹ":"r","ㅁ":"m","ㅂ":"b","ㅅ":"s","ㅇ":"",
-"ㅈ":"j","ㅊ":"ch","ㅋ":"k","ㅌ":"t","ㅍ":"p","ㅎ":"h",
-"ㅏ":"a","ㅑ":"ya","ㅓ":"eo","ㅕ":"yeo","ㅗ":"o","ㅛ":"yo","ㅜ":"u","ㅠ":"yu","ㅡ":"eu","ㅣ":"i"
-}
+let sInit=null;
+let sVowel=null;
+let sBatch=null;
 
-const WORDS=[
-"학교","사과","사랑","친구","고양이","강아지",
-"행복","한국","미국","컴퓨터","음악","운동"
-]
+let sentence="";
 
-let sInit=null
-let sVowel=null
-let sBatch=null
+function renderGrid(id,data,callback){
 
-let sentence=""
+const grid=document.getElementById(id);
+grid.innerHTML="";
 
-function createGrid(id,data,callback){
+data.forEach(ch=>{
+const btn=document.createElement("div");
+btn.className="key";
 
-const grid=document.getElementById(id)
-
-data.forEach(c=>{
-
-const btn=document.createElement("div")
-
-btn.className="key"
-
-btn.innerText=c
+btn.innerHTML=`<span class="k-char">${ch}</span>`;
 
 btn.onclick=()=>{
+grid.querySelectorAll(".key").forEach(k=>k.classList.remove("selected"));
+btn.classList.add("selected");
+callback(ch);
+render();
+};
 
-grid.querySelectorAll(".key").forEach(k=>k.classList.remove("selected"))
-
-btn.classList.add("selected")
-
-callback(c)
-
-render()
-
-}
-
-grid.appendChild(btn)
-
-})
+grid.appendChild(btn);
+});
 
 }
 
 function render(){
 
 if(!sInit||!sVowel){
+document.getElementById("target-char").innerText="-";
+return;
+}
 
-document.getElementById("char").innerText="-"
-document.getElementById("roman").innerText="-"
-return
+const i=CHO.indexOf(sInit);
+const v=JUNG.indexOf(sVowel);
+const b=sBatch?JONG.indexOf(sBatch):0;
+
+const code=(i*21+v)*28+b+44032;
+
+const char=String.fromCharCode(code);
+
+document.getElementById("target-char").innerText=char;
 
 }
 
-const i=CHO.indexOf(sInit)
-const v=JUNG.indexOf(sVowel)
-const b=sBatch?JONG.indexOf(sBatch):0
+function addToSentence(){
 
-const code=(i*21+v)*28+b+44032
+const char=document.getElementById("target-char").innerText;
 
-const char=String.fromCharCode(code)
+if(char==="-" )return;
 
-document.getElementById("char").innerText=char
+sentence+=char;
 
-const roman=(ROMAN[sInit]||"")+(ROMAN[sVowel]||"")+(ROMAN[sBatch]||"")
-
-document.getElementById("roman").innerText=roman
+updateSentenceUI();
 
 }
 
-function addChar(){
+function updateSentenceUI(){
 
-const char=document.getElementById("char").innerText
+const box=document.getElementById("sentence-box");
+const transBox=document.getElementById("translation-box");
 
-if(char=="-")return
+box.innerText=sentence||"Build your sentence...";
 
-sentence+=char
+if(!sentence){
+transBox.innerText="Translation will appear here";
+return;
+}
 
-updateSentence()
+const match=WORD_DB.find(w=>w.k===sentence);
+
+if(match){
+transBox.innerText="Meaning: "+match.e;
+return;
+}
+
+fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=ko|en`)
+.then(res=>res.json())
+.then(data=>{
+transBox.innerText="Meaning: "+data.responseData.translatedText;
+})
+.catch(()=>{
+transBox.innerText="(Translation unavailable)";
+});
 
 }
 
-function updateSentence(){
+function loadRandomWord(){
 
-const box=document.getElementById("sentence")
+const word=WORD_DB[Math.floor(Math.random()*WORD_DB.length)];
 
-box.innerText=sentence||"Build sentence..."
+sentence=word.k;
 
-const frame=document.getElementById("transFrame")
-
-if(sentence){
-
-frame.src=`https://translate.google.com/?sl=ko&tl=en&text=${encodeURIComponent(sentence)}&op=translate`
+updateSentenceUI();
 
 }
 
-}
+function openTypingPrompt(){
 
-function typeWord(){
+const input=prompt("Type Korean word");
 
-const t=prompt("Type Korean")
+if(!input)return;
 
-if(!t)return
+sentence=input;
 
-sentence=t
-
-updateSentence()
+updateSentenceUI();
 
 }
 
 function speak(){
 
-if(!sentence)return
+const text=sentence;
 
-const speech=new SpeechSynthesisUtterance(sentence)
+if(!text)return;
 
-speech.lang="ko-KR"
+const speech=new SpeechSynthesisUtterance(text);
 
-speech.rate=0.8
+speech.lang="ko-KR";
 
-speechSynthesis.speak(speech)
+speech.rate=0.8;
 
-}
-
-function randomWord(){
-
-sentence=WORDS[Math.floor(Math.random()*WORDS.length)]
-
-updateSentence()
+speechSynthesis.speak(speech);
 
 }
 
-function clearSentence(){
+function openYouGlish(){
 
-sentence=""
+if(!sentence)return;
 
-updateSentence()
+window.open(`https://youglish.com/pronounce/${sentence}/korean`);
 
 }
 
-createGrid("initGrid",CHO,c=>sInit=c)
-createGrid("vowelGrid",JUNG,c=>sVowel=c)
-createGrid("batchGrid",JONG,c=>sBatch=c)
+function clearAll(){
+
+sentence="";
+
+updateSentenceUI();
+
+}
+
+renderGrid("init-grid",CHO,ch=>sInit=ch);
+renderGrid("vow-grid",JUNG,ch=>sVowel=ch);
+renderGrid("batch-grid",JONG,ch=>sBatch=ch);
 
 </script>
 
