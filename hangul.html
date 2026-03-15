@@ -1,363 +1,348 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>한글 Master Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한글 Master Pro - Learning Tool</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --youglish: #e74c3c;
+            --type-btn: #3498db;
+            --random-btn: #8e44ad;
+            --clear-btn: #c0392b;
+            --bg: #f0f2f5;
+            --key-bg: #ffffff;
+            --selected-bg: #e67e22;
+            --translate-bg: #27ae60;
+        }
 
-<style>
-:root{
---primary:#2c3e50;
---accent:#e67e22;
---bg:#f0f2f5;
---key-bg:#ffffff;
---selected-bg:#e67e22;
---translate-bg:#27ae60;
-}
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
 
-body{
-font-family:'Segoe UI',Roboto,sans-serif;
-background:var(--bg);
-margin:0;
-padding:15px;
-display:flex;
-justify-content:center;
-}
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
 
-.container{
-width:100%;
-max-width:500px;
-background:white;
-padding:20px;
-border-radius:25px;
-box-shadow:0 10px 30px rgba(0,0,0,0.1);
-}
+        /* 상단 디스플레이 영역 */
+        .display-unit {
+            background: #ffffff;
+            padding: 25px 15px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid #eee;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
 
-.display-unit{
-background:#fff;
-padding:25px 15px;
-border-radius:20px;
-text-align:center;
-border:3px solid #eee;
-margin-bottom:20px;
-}
+        .sentence-display {
+            font-size: 26px;
+            color: var(--primary);
+            min-height: 32px;
+            margin-bottom: 5px;
+            font-weight: 800;
+            word-break: break-all;
+        }
 
-.sentence-display{
-font-size:24px;
-color:var(--primary);
-min-height:30px;
-margin-bottom:5px;
-font-weight:700;
-word-break:break-all;
-}
+        .translation-display {
+            font-size: 18px;
+            color: var(--translate-bg);
+            font-weight: 600;
+            margin-bottom: 15px;
+            min-height: 22px;
+        }
 
-.translation-display{
-font-size:18px;
-color:var(--translate-bg);
-font-weight:600;
-margin-bottom:15px;
-min-height:22px;
-}
+        .combined-text {
+            font-size: 72px;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 10px 0;
+            line-height: 1;
+            text-shadow: 2px 2px 0px #eee;
+        }
 
-.combined-text{
-font-size:70px;
-font-weight:900;
-color:var(--primary);
-margin:10px 0;
-line-height:1;
-}
+        .pron-main {
+            font-size: 24px;
+            color: var(--accent);
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
 
-.pron-main{
-font-size:24px;
-color:var(--accent);
-font-weight:bold;
-}
+        .button-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
 
-.button-group{
-display:flex;
-gap:8px;
-justify-content:center;
-margin-top:15px;
-flex-wrap:wrap;
-}
+        .btn {
+            padding: 12px 10px;
+            border: none;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
 
-.btn{
-padding:12px 10px;
-border:none;
-color:white;
-font-size:13px;
-font-weight:bold;
-border-radius:12px;
-cursor:pointer;
-flex:1;
-}
+        .btn:active { transform: scale(0.95); }
+        .enter-btn { background: #2ecc71; flex: 1.5; }
+        .type-btn { background: var(--type-btn); }
+        .speak-btn { background: var(--accent); }
+        .yg-btn { background: var(--youglish); }
+        .clear-btn { background: var(--clear-btn); }
+        
+        .rd-btn { 
+            background: var(--random-btn); 
+            padding: 16px; 
+            font-size: 16px; 
+            margin-top: 10px; 
+            width: 100%; 
+            border-radius: 15px;
+            box-shadow: 0 4px 0 #703688;
+        }
+        .rd-btn:active { box-shadow: none; transform: translateY(4px); }
+        
+        .trans-link-btn { 
+            background: #4285F4; 
+            margin-top: 8px; 
+            width: 100%; 
+            font-size: 14px;
+        }
 
-.enter-btn{background:#2ecc71;}
-.type-btn{background:#3498db;}
-.speak-btn{background:#e67e22;}
-.yg-btn{background:#e74c3c;}
-.clear-btn{background:#c0392b;}
-.rd-btn{background:#8e44ad;margin-top:10px;width:100%;}
-.trans-link-btn{background:#4285F4;margin-top:5px;width:100%;}
+        .grid-label {
+            font-weight: bold;
+            margin: 25px 0 10px 0;
+            color: var(--primary);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .grid-label::before {
+            content: "";
+            width: 4px;
+            height: 16px;
+            background: var(--accent);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
 
-.grid-label{
-font-weight:bold;
-margin:25px 0 10px 0;
-color:var(--primary);
-font-size:15px;
-}
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 10px;
+        }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(65px,1fr));
-gap:10px;
-}
+        .key {
+            padding: 12px 0;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            cursor: pointer;
+            background: var(--key-bg);
+            text-align: center;
+            transition: 0.2s;
+        }
 
-.key{
-padding:12px 0;
-border:2px solid #f0f0f0;
-border-radius:15px;
-cursor:pointer;
-background:var(--key-bg);
-text-align:center;
-}
+        .key span.k-char { font-size: 20px; font-weight: 700; color: var(--primary); display: block; }
+        .key span.e-pron { font-size: 11px; color: #aaa; text-transform: uppercase; }
+        .key.selected { background: var(--selected-bg); border-color: var(--selected-bg); }
+        .key.selected span.k-char, .key.selected span.e-pron { color: white; }
 
-.key span.k-char{
-font-size:20px;
-font-weight:700;
-color:var(--primary);
-display:block;
-}
-
-.key span.e-pron{
-font-size:11px;
-color:#aaa;
-}
-
-.key.selected{
-background:var(--selected-bg);
-border-color:var(--selected-bg);
-}
-
-.key.selected span{
-color:white;
-}
-</style>
+        .btn-reset {
+            grid-column: 1 / -1;
+            background: #eee;
+            color: #666;
+            font-size: 11px;
+            margin-top: 8px;
+            padding: 8px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <div class="display-unit">
+        <div id="sentence-box" class="sentence-display">Build your sentence...</div>
+        <div id="translation-box" class="translation-display">Translation will appear here</div>
+        <div id="target-char" class="combined-text">-</div>
+        <div id="target-pron-main" class="pron-main">-</div>
+        
+        <div class="button-group">
+            <button class="btn enter-btn" onclick="addToSentence()">➕ Enter Character</button>
+            <button class="btn type-btn" onclick="openTypingPrompt()">⌨️ Type Word/Sentence</button>
+        </div>
+        <div class="button-group">
+            <button class="btn speak-btn" onclick="speak()">🔊 Read</button>
+            <button class="btn yg-btn" onclick="openYouGlish()">📺 YouGlish</button>
+            <button class="btn clear-btn" onclick="clearAll()">🗑️ Clear</button>
+        </div>
+        <button class="btn trans-link-btn" onclick="openGoogleTranslate()">🌐 Full Translation (Google)</button>
+        <button class="btn rd-btn" onclick="loadRandomWord()">🎲 Random Study Word</button>
+    </div>
 
-<div class="display-unit">
-
-<div id="sentence-box" class="sentence-display">
-Build your sentence...
-</div>
-
-<div id="translation-box" class="translation-display">
-Translation will appear here
-</div>
-
-<div id="target-char" class="combined-text">-</div>
-<div id="target-pron-main" class="pron-main">-</div>
-
-<div class="button-group">
-<button class="btn enter-btn" onclick="addToSentence()">➕ Enter</button>
-<button class="btn type-btn" onclick="openTypingPrompt()">⌨️ Type Word</button>
-</div>
-
-<div class="button-group">
-<button class="btn speak-btn" onclick="speak()">🔊 Read</button>
-<button class="btn yg-btn" onclick="openYouGlish()">📺 YouGlish</button>
-<button class="btn clear-btn" onclick="clearAll()">🗑️ Clear</button>
-</div>
-
-<button class="btn rd-btn" onclick="loadRandomWord()">
-🎲 Get Random Study Word
-</button>
-
-</div>
-
-<div class="grid-label">Initial Consonants</div>
-<div id="init-grid" class="grid"></div>
-
-<div class="grid-label">Vowels</div>
-<div id="vow-grid" class="grid"></div>
-
-<div class="grid-label">Batchim</div>
-<div id="batch-grid" class="grid"></div>
-
+    <div class="grid-label">1. 초성 (Initial)</div>
+    <div id="init-grid" class="grid"></div>
+    <div class="grid-label">2. 모음 (Vowels)</div>
+    <div id="vow1-grid" class="grid"></div>
+    <div class="grid-label">3. 복합 모음 (Combined Vowels)</div>
+    <div id="vow-combo-grid" class="grid"></div>
+    <div class="grid-label">4. 받침 (Batchim)</div>
+    <div id="batch-grid" class="grid"></div>
 </div>
 
 <script>
+// WORD_DB (생략 없이 유지)
+const WORD_DB = [{k:"학교",e:"School"},{k:"사과",e:"Apple"},{k:"고양이",e:"Cat"},{k:"강아지",e:"Puppy"},{k:"우유",e:"Milk"},{k:"물",e:"Water"},{k:"밥",e:"Meal"},{k:"친구",e:"Friend"},{k:"사랑",e:"Love"},{k:"하늘",e:"Sky"},{k:"공부",e:"Study"},{k:"한국",e:"Korea"}];
 
-const WORD_DB=[
-{k:"학교",e:"School"},
-{k:"사과",e:"Apple"},
-{k:"고양이",e:"Cat"},
-{k:"강아지",e:"Puppy"},
-{k:"우유",e:"Milk"},
-{k:"바나나",e:"Banana"},
-{k:"친구",e:"Friend"},
-{k:"사랑",e:"Love"},
-{k:"하늘",e:"Sky"},
-{k:"바다",e:"Sea"}
-];
+const CHOSUNG=["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+const JUNGSUNG=["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+const JONGSUNG=["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
 
-const CHO=["ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
-const JUNG=["ㅏ","ㅑ","ㅓ","ㅕ","ㅗ","ㅛ","ㅜ","ㅠ","ㅡ","ㅣ"];
-const JONG=["","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ"];
+const inits=[{k:'ㄱ',e:'g'},{k:'ㄴ',e:'n'},{k:'ㄷ',e:'d'},{k:'ㄹ',e:'r'},{k:'ㅁ',e:'m'},{k:'ㅂ',e:'b'},{k:'ㅅ',e:'s'},{k:'ㅇ',e:'-'},{k:'ㅈ',e:'j'},{k:'ㅊ',e:'ch'},{k:'ㅋ',e:'k'},{k:'ㅌ',e:'t'},{k:'ㅍ',e:'p'},{k:'ㅎ',e:'h'},{k:'ㄲ',e:'kk'},{k:'ㄸ',e:'tt'},{k:'ㅃ',e:'pp'},{k:'ㅆ',e:'ss'},{k:'ㅉ',e:'jj'}];
+const vows1=[{k:'ㅏ',e:'a'},{k:'ㅑ',e:'ya'},{k:'ㅓ',e:'eo'},{k:'ㅕ',e:'yeo'},{k:'ㅗ',e:'o'},{k:'ㅛ',e:'yo'},{k:'ㅜ',e:'u'},{k:'ㅠ',e:'yu'},{k:'ㅡ',e:'eu'},{k:'ㅣ',e:'i'}];
+const vowCombo=[{k:'ㅐ',e:'ae'},{k:'ㅔ',e:'e'},{k:'ㅘ',e:'wa'},{k:'ㅝ',e:'wo'},{k:'ㅟ',e:'wi'},{k:'ㅢ',e:'ui'}];
+const batch=[{k:'ㄱ',e:'k'},{k:'ㄴ',e:'n'},{k:'ㄹ',e:'l'},{k:'ㅁ',e:'m'},{k:'ㅂ',e:'p'},{k:'ㅇ',e:'ng'}];
 
-let sInit=null;
-let sVowel=null;
-let sBatch=null;
+let sInit = null, sVow = null, sBatch = null, sentence = "";
 
-let sentence="";
-
-function renderGrid(id,data,callback){
-
-const grid=document.getElementById(id);
-grid.innerHTML="";
-
-data.forEach(ch=>{
-const btn=document.createElement("div");
-btn.className="key";
-
-btn.innerHTML=`<span class="k-char">${ch}</span>`;
-
-btn.onclick=()=>{
-grid.querySelectorAll(".key").forEach(k=>k.classList.remove("selected"));
-btn.classList.add("selected");
-callback(ch);
-render();
-};
-
-grid.appendChild(btn);
-});
-
+function init() {
+    renderGrid("init-grid", inits, item => sInit = item);
+    renderGrid("vow1-grid", vows1, item => sVow = item);
+    renderGrid("vow-combo-grid", vowCombo, item => sVow = item);
+    renderGrid("batch-grid", batch, item => sBatch = item);
 }
 
-function render(){
-
-if(!sInit||!sVowel){
-document.getElementById("target-char").innerText="-";
-return;
+function renderGrid(id, data, onSelect) {
+    const grid = document.getElementById(id);
+    data.forEach(item => {
+        const btn = document.createElement("div");
+        btn.className = "key";
+        btn.innerHTML = `<span class="k-char">${item.k}</span><span class="e-pron">${item.e}</span>`;
+        btn.onclick = () => {
+            document.querySelectorAll(`#${id} .key`).forEach(k => k.classList.remove("selected"));
+            btn.classList.add("selected");
+            onSelect(item);
+            render();
+        };
+        grid.appendChild(btn);
+    });
 }
 
-const i=CHO.indexOf(sInit);
-const v=JUNG.indexOf(sVowel);
-const b=sBatch?JONG.indexOf(sBatch):0;
-
-const code=(i*21+v)*28+b+44032;
-
-const char=String.fromCharCode(code);
-
-document.getElementById("target-char").innerText=char;
-
+// 팝업 안내 문구 수정 (한국어 + 영어)
+function openTypingPrompt() {
+    const message = "연습하고 싶은 한국어 단어나 문장을 입력하세요.\n(Please type a Korean word or sentence you want to practice.)";
+    const input = prompt(message);
+    if (input && input.trim() !== "") {
+        sentence = input;
+        updateSentenceUI();
+    }
 }
 
-function addToSentence(){
-
-const char=document.getElementById("target-char").innerText;
-
-if(char==="-" )return;
-
-sentence+=char;
-
-updateSentenceUI();
-
+function updateSentenceUI() {
+    const box = document.getElementById("sentence-box");
+    const transBox = document.getElementById("translation-box");
+    box.innerText = sentence || "Build your sentence...";
+    
+    // 내부 DB 확인
+    const match = WORD_DB.find(w => w.k === sentence);
+    if (match) {
+        transBox.innerText = `Meaning: ${match.e}`;
+    } else {
+        transBox.innerText = sentence ? "Click 'Full Translation' to see the meaning" : "Translation will appear here";
+    }
 }
 
-function updateSentenceUI(){
-
-const box=document.getElementById("sentence-box");
-const transBox=document.getElementById("translation-box");
-
-box.innerText=sentence||"Build your sentence...";
-
-if(!sentence){
-transBox.innerText="Translation will appear here";
-return;
+function openGoogleTranslate() {
+    if (!sentence) return;
+    window.open(`https://translate.google.com/?sl=ko&tl=en&text=${encodeURIComponent(sentence)}&op=translate`, '_blank');
 }
 
-const match=WORD_DB.find(w=>w.k===sentence);
-
-if(match){
-transBox.innerText="Meaning: "+match.e;
-return;
+function addToSentence() {
+    const char = document.getElementById("target-char").innerText;
+    if (char === "-") return;
+    sentence += char;
+    updateSentenceUI();
+    resetSelections();
 }
 
-fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=ko|en`)
-.then(res=>res.json())
-.then(data=>{
-transBox.innerText="Meaning: "+data.responseData.translatedText;
-})
-.catch(()=>{
-transBox.innerText="(Translation unavailable)";
-});
-
+function resetSelections() {
+    sInit = sVow = sBatch = null;
+    document.querySelectorAll('.key').forEach(k => k.classList.remove("selected"));
+    render();
 }
 
-function loadRandomWord(){
-
-const word=WORD_DB[Math.floor(Math.random()*WORD_DB.length)];
-
-sentence=word.k;
-
-updateSentenceUI();
-
+function clearAll() {
+    sentence = "";
+    updateSentenceUI();
+    resetSelections();
 }
 
-function openTypingPrompt(){
-
-const input=prompt("Type Korean word");
-
-if(!input)return;
-
-sentence=input;
-
-updateSentenceUI();
-
+function loadRandomWord() {
+    const word = WORD_DB[Math.floor(Math.random() * WORD_DB.length)];
+    sentence = word.k;
+    updateSentenceUI();
+    document.getElementById("translation-box").innerText = `Meaning: ${word.e}`;
 }
 
-function speak(){
+function render() {
+    const targetChar = document.getElementById("target-char");
+    const targetPron = document.getElementById("target-pron-main");
+    
+    if (!sInit || !sVow) {
+        targetChar.innerText = sInit ? sInit.k : (sVow ? sVow.k : "-");
+        targetPron.innerText = "-";
+        return;
+    }
 
-const text=sentence;
-
-if(!text)return;
-
-const speech=new SpeechSynthesisUtterance(text);
-
-speech.lang="ko-KR";
-
-speech.rate=0.8;
-
-speechSynthesis.speak(speech);
-
+    const iIndex = CHOSUNG.indexOf(sInit.k);
+    const vIndex = JUNGSUNG.indexOf(sVow.k);
+    const bIndex = sBatch ? JONGSUNG.indexOf(sBatch.k) : 0;
+    
+    const charCode = (iIndex * 21 + vIndex) * 28 + bIndex + 0xAC00;
+    targetChar.innerText = String.fromCharCode(charCode);
+    targetPron.innerText = (sInit.e.replace('-','') + sVow.e + (sBatch ? sBatch.e : "")).toUpperCase();
 }
 
-function openYouGlish(){
-
-if(!sentence)return;
-
-window.open(`https://youglish.com/pronounce/${sentence}/korean`);
-
+function speak() {
+    const text = sentence || document.getElementById("target-char").innerText;
+    if (text === "-") return;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "ko-KR";
+    window.speechSynthesis.speak(speech);
 }
 
-function clearAll(){
-
-sentence="";
-
-updateSentenceUI();
-
+function openYouGlish() {
+    const text = sentence || document.getElementById("target-char").innerText;
+    if (text === "-") return;
+    window.open(`https://youglish.com/pronounce/${encodeURIComponent(text)}/korean`, '_blank');
 }
 
-renderGrid("init-grid",CHO,ch=>sInit=ch);
-renderGrid("vow-grid",JUNG,ch=>sVowel=ch);
-renderGrid("batch-grid",JONG,ch=>sBatch=ch);
-
+init();
 </script>
-
 </body>
 </html>
