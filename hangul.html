@@ -1,363 +1,440 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>한글 Master Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한글 Master Pro</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --youglish: #e74c3c;
+            --type-btn: #3498db;
+            --random-btn: #8e44ad;
+            --clear-btn: #c0392b;
+            --bg: #f0f2f5;
+            --key-bg: #ffffff;
+            --selected-bg: #e67e22;
+            --translate-bg: #27ae60;
+        }
 
-<style>
-:root{
---primary:#2c3e50;
---accent:#e67e22;
---bg:#f0f2f5;
---key-bg:#ffffff;
---selected-bg:#e67e22;
---translate-bg:#27ae60;
-}
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
 
-body{
-font-family:'Segoe UI',Roboto,sans-serif;
-background:var(--bg);
-margin:0;
-padding:15px;
-display:flex;
-justify-content:center;
-}
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
 
-.container{
-width:100%;
-max-width:500px;
-background:white;
-padding:20px;
-border-radius:25px;
-box-shadow:0 10px 30px rgba(0,0,0,0.1);
-}
+        /* 상단 디스플레이 영역: 시인성 대폭 강화 */
+        .display-unit {
+            background: #ffffff;
+            padding: 25px 15px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid #eee;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
 
-.display-unit{
-background:#fff;
-padding:25px 15px;
-border-radius:20px;
-text-align:center;
-border:3px solid #eee;
-margin-bottom:20px;
-}
+        .sentence-display {
+            font-size: 26px;
+            color: var(--primary);
+            min-height: 32px;
+            margin-bottom: 5px;
+            font-weight: 800;
+            word-break: break-all;
+        }
 
-.sentence-display{
-font-size:24px;
-color:var(--primary);
-min-height:30px;
-margin-bottom:5px;
-font-weight:700;
-word-break:break-all;
-}
+        .translation-display {
+            font-size: 18px;
+            color: var(--translate-bg);
+            font-weight: 600;
+            margin-bottom: 15px;
+            min-height: 22px;
+        }
 
-.translation-display{
-font-size:18px;
-color:var(--translate-bg);
-font-weight:600;
-margin-bottom:15px;
-min-height:22px;
-}
+        .combined-text {
+            font-size: 72px;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 10px 0;
+            line-height: 1;
+            text-shadow: 2px 2px 0px #eee;
+        }
 
-.combined-text{
-font-size:70px;
-font-weight:900;
-color:var(--primary);
-margin:10px 0;
-line-height:1;
-}
+        .pron-main {
+            font-size: 24px;
+            color: var(--accent);
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
 
-.pron-main{
-font-size:24px;
-color:var(--accent);
-font-weight:bold;
-}
+        .button-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
 
-.button-group{
-display:flex;
-gap:8px;
-justify-content:center;
-margin-top:15px;
-flex-wrap:wrap;
-}
+        .btn {
+            padding: 12px 10px;
+            border: none;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
 
-.btn{
-padding:12px 10px;
-border:none;
-color:white;
-font-size:13px;
-font-weight:bold;
-border-radius:12px;
-cursor:pointer;
-flex:1;
-}
+        .btn:active { transform: scale(0.95); }
+        .enter-btn { background: #2ecc71; flex: 1.5; }
+        .type-btn { background: var(--type-btn); }
+        .speak-btn { background: var(--accent); }
+        .yg-btn { background: var(--youglish); }
+        .clear-btn { background: var(--clear-btn); }
+        
+        /* 랜덤 버튼 & 번역 링크 버튼 강조 */
+        .rd-btn { 
+            background: var(--random-btn); 
+            padding: 16px; 
+            font-size: 16px; 
+            margin-top: 10px; 
+            width: 100%; 
+            border-radius: 15px;
+            box-shadow: 0 4px 0 #703688;
+        }
+        .rd-btn:active { box-shadow: none; transform: translateY(4px); }
+        
+        .trans-link-btn { 
+            background: #4285F4; 
+            margin-top: 8px; 
+            width: 100%; 
+            font-size: 14px;
+        }
 
-.enter-btn{background:#2ecc71;}
-.type-btn{background:#3498db;}
-.speak-btn{background:#e67e22;}
-.yg-btn{background:#e74c3c;}
-.clear-btn{background:#c0392b;}
-.rd-btn{background:#8e44ad;margin-top:10px;width:100%;}
-.trans-link-btn{background:#4285F4;margin-top:5px;width:100%;}
+        .grid-label {
+            font-weight: bold;
+            margin: 25px 0 10px 0;
+            color: var(--primary);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .grid-label::before {
+            content: "";
+            width: 4px;
+            height: 16px;
+            background: var(--accent);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
 
-.grid-label{
-font-weight:bold;
-margin:25px 0 10px 0;
-color:var(--primary);
-font-size:15px;
-}
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 10px;
+        }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(65px,1fr));
-gap:10px;
-}
+        .key {
+            padding: 12px 0;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            cursor: pointer;
+            background: var(--key-bg);
+            text-align: center;
+            transition: 0.2s;
+        }
 
-.key{
-padding:12px 0;
-border:2px solid #f0f0f0;
-border-radius:15px;
-cursor:pointer;
-background:var(--key-bg);
-text-align:center;
-}
+        .key span.k-char { font-size: 20px; font-weight: 700; color: var(--primary); display: block; }
+        .key span.e-pron { font-size: 11px; color: #aaa; text-transform: uppercase; }
 
-.key span.k-char{
-font-size:20px;
-font-weight:700;
-color:var(--primary);
-display:block;
-}
+        .key:hover { border-color: var(--accent); background: #fffaf5; }
+        .key.selected { background: var(--selected-bg); border-color: var(--selected-bg); }
+        .key.selected span.k-char, .key.selected span.e-pron { color: white; }
 
-.key span.e-pron{
-font-size:11px;
-color:#aaa;
-}
-
-.key.selected{
-background:var(--selected-bg);
-border-color:var(--selected-bg);
-}
-
-.key.selected span{
-color:white;
-}
-</style>
+        .btn-reset {
+            grid-column: 1 / -1;
+            background: #eee;
+            color: #666;
+            font-size: 11px;
+            margin-top: 8px;
+            padding: 8px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <div class="display-unit">
+        <div id="sentence-box" class="sentence-display">Build your sentence...</div>
+        <div id="translation-box" class="translation-display">Translation will appear here</div>
+        <div id="target-char" class="combined-text">-</div>
+        <div id="target-pron-main" class="pron-main">-</div>
+        
+        <div class="button-group">
+            <button class="btn enter-btn" onclick="addToSentence()">➕ Enter</button>
+            <button class="btn type-btn" onclick="openTypingPrompt()">⌨️ Type (Keyboard)</button>
+        </div>
+        <div class="button-group">
+            <button class="btn speak-btn" onclick="speak()">🔊 Read</button>
+            <button class="btn yg-btn" onclick="openYouGlish()">📺 YouGlish</button>
+            <button class="btn clear-btn" onclick="clearAll()">🗑️ Clear All</button>
+        </div>
+        <button class="btn trans-link-btn" onclick="openGoogleTranslate()">🌐 Full Translation (Google)</button>
+        <button class="btn rd-btn" onclick="loadRandomWord()">🎲 Get Random Study Word</button>
+    </div>
 
-<div class="display-unit">
+    <div class="grid-label">1. 초성 (Initial Consonants)</div>
+    <div id="init-grid" class="grid"></div>
 
-<div id="sentence-box" class="sentence-display">
-Build your sentence...
-</div>
+    <div class="grid-label">2. 기본 모음 (Basic Vowels)</div>
+    <div id="vow1-grid" class="grid"></div>
+    
+    <div class="grid-label">3. 쌍모음 (Double Vowels)</div>
+    <div id="vow-double-grid" class="grid"></div>
 
-<div id="translation-box" class="translation-display">
-Translation will appear here
-</div>
+    <div class="grid-label">4. 결합 모음 (Combined Vowels)</div>
+    <div id="vow-combo-grid" class="grid"></div>
+    <div class="btn-reset" onclick="resetVowels()">Clear Extra Vowels</div>
 
-<div id="target-char" class="combined-text">-</div>
-<div id="target-pron-main" class="pron-main">-</div>
+    <div class="grid-label">5. 기본 받침 (Basic Batchim)</div>
+    <div id="batch-primary-grid" class="grid"></div>
 
-<div class="button-group">
-<button class="btn enter-btn" onclick="addToSentence()">➕ Enter</button>
-<button class="btn type-btn" onclick="openTypingPrompt()">⌨️ Type Word</button>
-</div>
-
-<div class="button-group">
-<button class="btn speak-btn" onclick="speak()">🔊 Read</button>
-<button class="btn yg-btn" onclick="openYouGlish()">📺 YouGlish</button>
-<button class="btn clear-btn" onclick="clearAll()">🗑️ Clear</button>
-</div>
-
-<button class="btn rd-btn" onclick="loadRandomWord()">
-🎲 Get Random Study Word
-</button>
-
-</div>
-
-<div class="grid-label">Initial Consonants</div>
-<div id="init-grid" class="grid"></div>
-
-<div class="grid-label">Vowels</div>
-<div id="vow-grid" class="grid"></div>
-
-<div class="grid-label">Batchim</div>
-<div id="batch-grid" class="grid"></div>
-
+    <div class="grid-label" style="font-size:11px; color:#7f8c8d;">Complex Batchim (Double/Mixed)</div>
+    <div id="batch-advanced-grid" class="grid"></div>
+    <div class="btn-reset" onclick="resetGrid('batch-')">No Batchim</div>
 </div>
 
 <script>
-
-const WORD_DB=[
-{k:"학교",e:"School"},
-{k:"사과",e:"Apple"},
-{k:"고양이",e:"Cat"},
-{k:"강아지",e:"Puppy"},
-{k:"우유",e:"Milk"},
-{k:"바나나",e:"Banana"},
-{k:"친구",e:"Friend"},
-{k:"사랑",e:"Love"},
-{k:"하늘",e:"Sky"},
-{k:"바다",e:"Sea"}
+// WORD_DB 데이터 (기존과 동일)
+const WORD_DB = [
+    {k:"학교",e:"School"},{k:"사과",e:"Apple"},{k:"고양이",e:"Cat"},{k:"강아지",e:"Puppy"},{k:"우유",e:"Milk"},{k:"바나나",e:"Banana"},{k:"기차",e:"Train"},{k:"버스",e:"Bus"},{k:"어머니",e:"Mother"},{k:"아버지",e:"Father"},{k:"친구",e:"Friend"},{k:"물",e:"Water"},{k:"밥",e:"Meal"},{k:"빵",e:"Bread"},{k:"의자",e:"Chair"},{k:"책상",e:"Desk"},{k:"공부",e:"Study"},{k:"사랑",e:"Love"},{k:"하늘",e:"Sky"},{k:"바다",e:"Sea"},{k:"나무",e:"Tree"},{k:"꽃",e:"Flower"},{k:"사람",e:"Person"},{k:"나라",e:"Country"},{k:"한국",e:"Korea"},{k:"미국",e:"USA"},{k:"선생님",e:"Teacher"},{k:"학생",e:"Student"},{k:"시계",e:"Clock"},{k:"안경",e:"Glasses"},{k:"노래",e:"Song"},{k:"영화",e:"Movie"},{k:"가족",e:"Family"},{k:"모자",e:"Hat"},{k:"신발",e:"Shoes"},{k:"옷",e:"Clothes"},{k:"가방",e:"Bag"},{k:"전화기",e:"Phone"},{k:"컴퓨터",e:"Computer"},{k:"병원",e:"Hospital"},{k:"공원",e:"Park"},{k:"도서관",e:"Library"},{k:"머리",e:"Head"},{k:"눈",e:"Eye/Snow"},{k:"코",e:"Nose"},{k:"입",e:"Mouth"},{k:"귀",e:"Ear"},{k:"손",e:"Hand"},{k:"발",e:"Foot"},{k:"다리",e:"Leg"},{k:"여름",e:"Summer"},{k:"겨울",e:"Winter"},{k:"봄",e:"Spring"},{k:"가을",e:"Autumn"},{k:"오늘",e:"Today"},{k:"내일",e:"Tomorrow"},{k:"어제",e:"Yesterday"},{k:"아침",e:"Morning"},{k:"점심",e:"Lunch"},{k:"저녁",e:"Evening"},{k:"밤",e:"Night"},{k:"운동",e:"Exercise"},{k:"여행",e:"Travel"},{k:"비",e:"Rain"},{k:"구름",e:"Cloud"},{k:"바람",e:"Wind"},{k:"태양",e:"Sun"},{k:"달",e:"Moon"},{k:"별",e:"Star"},{k:"돈",e:"Money"},{k:"시간",e:"Time"},{k:"이름",e:"Name"},{k:"나이",e:"Age"},{k:"생일",e:"Birthday"},{k:"선물",e:"Gift"},{k:"편지",e:"Letter"},{k:"웃음",e:"Laugh"},{k:"눈물",e:"Tears"},{k:"꿈",e:"Dream"},{k:"행복",e:"Happiness"},{k:"슬픔",e:"Sadness"},{k:"화",e:"Anger"},{k:"집",e:"House"},{k:"문",e:"Door"},{k:"창문",e:"Window"},{k:"부엌",e:"Kitchen"},{k:"방",e:"Room"},{k:"화장실",e:"Toilet"},{k:"거울",e:"Mirror"},{k:"수건",e:"Towel"},{k:"비누",e:"Soap"},{k:"칫솔",e:"Toothbrush"},{k:"치약",e:"Toothpaste"},{k:"샴푸",e:"Shampoo"},{k:"세수",e:"Washing face"},{k:"샤워",e:"Shower"},{k:"잠",e:"Sleep"},{k:"꿈",e:"Dream"},{k:"아기",e:"Baby"},{k:"할아버지",e:"Grandfather"},{k:"할머니",e:"Grandmother"},{k:"형",e:"Older brother"},{k:"누나",e:"Older sister"},{k:"오빠",e:"Older brother(fem)"},{k:"언니",e:"Older sister(fem)"},{k:"동생",e:"Younger sibling"},{k:"남동생",e:"Younger brother"},{k:"여동생",e:"Younger sister"},{k:"남자",e:"Man"},{k:"여자",e:"Woman"},{k:"남편",e:"Husband"},{k:"아내",e:"Wife"},{k:"결혼",e:"Marriage"},{k:"동료",e:"Colleague"},{k:"사장",e:"Boss"},{k:"회사",e:"Company"},{k:"일",e:"Work"},{k:"회의",e:"Meeting"},{k:"전화",e:"Phone call"},{k:"휴대폰",e:"Mobile phone"},{k:"사진",e:"Photo"},{k:"카메라",e:"Camera"},{k:"음악",e:"Music"},{k:"라디오",e:"Radio"},{k:"그림",e:"Painting"},{k:"책",e:"Book"},{k:"신문",e:"Newspaper"},{k:"우체국",e:"Post office"},{k:"은행",e:"Bank"},{k:"카드",e:"Card"},{k:"지갑",e:"Wallet"},{k:"시장",e:"Market"},{k:"가게",e:"Shop"},{k:"백화점",e:"Department store"},{k:"마트",e:"Mart"},{k:"물건",e:"Item"},{k:"가격",e:"Price"},{k:"계산",e:"Payment"},{k:"영수증",e:"Receipt"},{k:"커피",e:"Coffee"},{k:"차",e:"Tea/Car"},{k:"주스",e:"Juice"},{k:"맥주",e:"Beer"},{k:"와인",e:"Wine"},{k:"소주",e:"Soju"},{k:"고기",e:"Meat"},{k:"생선",e:"Fish"},{k:"채소",e:"Vegetable"},{k:"과일",e:"Fruit"},{k:"포도",e:"Grape"},{k:"수박",e:"Watermelon"},{k:"딸기",e:"Strawberry"},{k:"오렌지",e:"Orange"},{k:"배",e:"Pear/Boat"},{k:"복숭아",e:"Peach"},{k:"김치",e:"Kimchi"},{k:"불고기",e:"Bulgogi"},{k:"비빔밥",e:"Bibimbap"},{k:"라면",e:"Ramen"},{k:"냉면",e:"Cold noodles"},{k:"떡볶이",e:"Tteokbokki"},{k:"만두",e:"Dumpling"},{k:"김밥",e:"Gimbap"},{k:"설탕",e:"Sugar"},{k:"소금",e:"Salt"},{k:"간장",e:"Soy sauce"},{k:"고추장",e:"Chili paste"},{k:"참기름",e:"Sesame oil"},{k:"식사",e:"Meal"},{k:"숟가락",e:"Spoon"},{k:"젓가락",e:"Chopsticks"},{k:"그릇",e:"Bowl"},{k:"컵",e:"Cup"},{k:"포크",e:"Fork"},{k:"나이프",e:"Knife"},{k:"냄비",e:"Pot"},{k:"프라이팬",e:"Frying pan"},{k:"공항",e:"Airport"},{k:"비행기",e:"Airplane"},{k:"여권",e:"Passport"},{k:"표",e:"Ticket"},{k:"지하철",e:"Subway"},{k:"택시",e:"Taxi"},{k:"자전거",e:"Bicycle"},{k:"오토바이",e:"Motorcycle"},{k:"정거장",e:"Station"},{k:"길",e:"Road"},{k:"거리",e:"Street"},{k:"골목",e:"Alley"},{k:"지도",e:"Map"},{k:"위치",e:"Location"},{k:"여기",e:"Here"},{k:"거기",e:"There"},{k:"저기",e:"Over there"},{k:"어디",e:"Where"},{k:"왼쪽",e:"Left"},{k:"오른쪽",e:"Right"},{k:"앞",e:"Front"},{k:"뒤",e:"Back"},{k:"옆",e:"Side"},{k:"위",e:"Top"},{k:"아래",e:"Bottom"},{k:"사이",e:"Between"},{k:"안",e:"Inside"},{k:"밖",e:"Outside"},{k:"북쪽",e:"North"},{k:"남쪽",e:"South"},{k:"동쪽",e:"East"},{k:"서쪽",e:"West"},{k:"서울",e:"Seoul"},{k:"제주도",e:"Jeju Island"},{k:"부산",e:"Busan"},{k:"도시",e:"City"},{k:"마을",e:"Village"},{k:"시골",e:"Countryside"},{k:"강",e:"River"},{k:"산",e:"Mountain"},{k:"숲",e:"Forest"},{k:"들",e:"Field"},{k:"호수",e:"Lake"},{k:"섬",e:"Island"},{k:"날씨",e:"Weather"},{k:"맑음",e:"Sunny"},{k:"흐림",e:"Cloudy"},{k:"안개",e:"Fog"},{k:"태풍",e:"Typhoon"},{k:"온도",e:"Temperature"},{k:"더위",e:"Heat"},{k:"추위",e:"Cold"},{k:"계절",e:"Season"},{k:"초",e:"Second"},{k:"분",e:"Minute"},{k:"날",e:"Day"},{k:"주",e:"Week"},{k:"달",e:"Month"},{k:"년",e:"Year"},{k:"월요일",e:"Monday"},{k:"화요일",e:"Tuesday"},{k:"수요일",e:"Wednesday"},{k:"목요일",e:"Thursday"},{k:"금요일",e:"Friday"},{k:"토요일",e:"Saturday"},{k:"일요일",e:"Sunday"},{k:"주말",e:"Weekend"},{k:"휴일",e:"Holiday"},{k:"기념일",e:"Anniversary"},{k:"방학",e:"Vacation(school)"},{k:"휴가",e:"Vacation(work)"},{k:"과거",e:"Past"},{k:"현재",e:"Present"},{k:"미래",e:"Future"},{k:"먼저",e:"First"},{k:"나중에",e:"Later"},{k:"빨리",e:"Fast"},{k:"천천히",e:"Slowly"},{k:"자주",e:"Often"},{k:"가끔",e:"Sometimes"},{k:"매일",e:"Every day"},{k:"항상",e:"Always"},{k:"절대",e:"Never"},{k:"가장",e:"Most"},{k:"매우",e:"Very"},{k:"조금",e:"A little"},{k:"많이",e:"Much"},{k:"정말",e:"Really"},{k:"진짜",e:"Real"},{k:"가짜",e:"Fake"},{k:"하나",e:"One"},{k:"둘",e:"Two"},{k:"셋",e:"Three"},{k:"넷",e:"Four"},{k:"다섯",e:"Five"},{k:"여섯",e:"Six"},{k:"일곱",e:"Seven"},{k:"여덟",e:"Eight"},{k:"아홉",e:"Nine"},{k:"열",e:"Ten"},{k:"백",e:"Hundred"},{k:"천",e:"Thousand"},{k:"만",e:"Ten thousand"},{k:"첫째",e:"First"},{k:"마지막",e:"Last"},{k:"색깔",e:"Color"},{k:"빨간색",e:"Red"},{k:"파란색",e:"Blue"},{k:"노란색",e:"Yellow"},{k:"초록색",e:"Green"},{k:"검은색",e:"Black"},{k:"하얀색",e:"White"},{k:"보라색",e:"Purple"},{k:"주황색",e:"Orange"},{k:"분홍색",e:"Pink"},{k:"갈색",e:"Brown"},{k:"회색",e:"Grey"},{k:"동물",e:"Animal"},{k:"새",e:"Bird"},{k:"쥐",e:"Mouse"},{k:"소",e:"Cow"},{k:"말",e:"Horse"},{k:"돼지",e:"Pig"},{k:"양",e:"Sheep"},{k:"원숭이",e:"Monkey"},{k:"호랑이",e:"Tiger"},{k:"사자",e:"Lion"},{k:"코끼리",e:"Elephant"},{k:"곰",e:"Bear"},{k:"뱀",e:"Snake"},{k:"나비",e:"Butterfly"},{k:"벌",e:"Bee"},{k:"운동",e:"Sports"},{k:"축구",e:"Soccer"},{k:"야구",e:"Baseball"},{k:"농구",e:"Basketball"},{k:"수영",e:"Swimming"},{k:"태권도",e:"Taekwondo"},{k:"달리기",e:"Running"},{k:"등산",e:"Hiking"},{k:"골프",e:"Golf"},{k:"테니스",e:"Tennis"},{k:"춤",e:"Dance"},{k:"악기",e:"Instrument"},{k:"피아노",e:"Piano"},{k:"기타",e:"Guitar"},{k:"직업",e:"Job"},{k:"의사",e:"Doctor"},{k:"간호사",e:"Nurse"},{k:"경찰",e:"Police"},{k:"소방관",e:"Firefighter"},{k:"요리사",e:"Chef"},{k:"군인",e:"Soldier"},{k:"가수",e:"Singer"},{k:"배우",e:"Actor"},{k:"작가",e:"Writer"},{k:"기자",e:"Reporter"},{k:"운전사",e:"Driver"},{k:"농부",e:"Farmer"},{k:"어부",e:"Fisherman"},{k:"약",e:"Medicine"},{k:"건강",e:"Health"},{k:"기침",e:"Cough"},{k:"감기",e:"Cold"},{k:"통증",e:"Pain"},{k:"상처",e:"Wound"},{k:"수술",e:"Surgery"},{k:"취미",e:"Hobby"},{k:"게임",e:"Game"},{k:"독서",e:"Reading"},{k:"쇼핑",e:"Shopping"},{k:"요리",e:"Cooking"},{k:"낚시",e:"Fishing"},{k:"스키",e:"Ski"},{k:"탁구",e:"Ping pong"},{k:"가구",e:"Furniture"},{k:"소파",e:"Sofa"},{k:"옷장",e:"Closet"},{k:"식탁",e:"Dining table"},{k:"세탁기",e:"Washer"},{k:"청소기",e:"Vacuum"},{k:"전등",e:"Light"},{k:"가위",e:"Scissors"},{k:"칼",e:"Knife"},{k:"종이",e:"Paper"},{k:"연필",e:"Pencil"},{k:"볼펜",e:"Pen"},{k:"공책",e:"Notebook"},{k:"지우개",e:"Eraser"},{k:"풀",e:"Glue"},{k:"테이프",e:"Tape"},{k:"자",e:"Ruler"},{k:"안녕",e:"Hello"},{k:"고마워",e:"Thanks"},{k:"미안해",e:"Sorry"},{k:"부탁해",e:"Please"},{k:"괜찮아",e:"OK/Fine"},{k:"좋아",e:"Like/Good"},{k:"싫어",e:"Dislike"},{k:"가다",e:"Go"},{k:"오다",e:"Come"},{k:"먹다",e:"Eat"},{k:"마시다",e:"Drink"},{k:"자다",e:"Sleep"},{k:"보다",e:"See"},{k:"듣다",e:"Listen"},{k:"말하다",e:"Speak"},{k:"읽다",e:"Read"},{k:"쓰다",e:"Write"},{k:"앉다",e:"Sit"},{k:"서다",e:"Stand"},{k:"걷다",e:"Walk"},{k:"뛰다",e:"Run"},{k:"알다",e:"Know"},{k:"모르다",e:"Don't know"},{k:"하다",e:"Do"},{k:"사다",e:"Buy"},{k:"팔다",e:"Sell"},{k:"주다",e:"Give"},{k:"받다",e:"Receive"},{k:"가르치다",e:"Teach"},{k:"배우다",e:"Learn"},{k:"웃다",e:"Smile"},{k:"울다",e:"Cry"},{k:"기다리다",e:"Wait"},{k:"만나다",e:"Meet"},{k:"헤어지다",e:"Part ways"},{k:"생각하다",e:"Think"},{k:"기억하다",e:"Remember"},{k:"잊다",e:"Forget"},{k:"도와주다",e:"Help"},{k:"사용하다",e:"Use"},{k:"청소하다",e:"Clean"},{k:"요리하다",e:"Cook"},{k:"운동하다",e:"Work out"},{k:"운전하다",e:"Drive"},{k:"전화하다",e:"Call"},{k:"일하다",e:"Work"},{k:"쉬다",e:"Rest"},{k:"크다",e:"Big"},{k:"작다",e:"Small"},{k:"많다",e:"Many"},{k:"적다",e:"Few"},{k:"길다",e:"Long"},{k:"짧다",e:"Short"},{k:"높다",e:"High"},{k:"낮다",e:"Low"},{k:"넓다",e:"Wide"},{k:"좁다",e:"Narrow"},{k:"멀다",e:"Far"},{k:"가깝다",e:"Near"},{k:"빠르다",e:"Fast"},{k:"느리다",e:"Slow"},{k:"어렵다",e:"Difficult"},{k:"쉽다",e:"Easy"},{k:"무겁다",e:"Heavy"},{k:"가볍다",e:"Light"},{k:"뜨겁다",e:"Hot"},{k:"차갑다",e:"Cold"},{k:"시원하다",e:"Cool"},{k:"따뜻하다",e:"Warm"},{k:"좋다",e:"Good"},{k:"나쁘다",e:"Bad"},{k:"비싸다",e:"Expensive"},{k:"싸다",e:"Cheap"},{k:"맵다",e:"Spicy"},{k:"달다",e:"Sweet"},{k:"시다",e:"Sour"},{k:"쓰다",e:"Bitter"},{k:"짜다",e:"Salty"},{k:"맛있다",e:"Delicious"},{k:"맛없다",e:"Not tasty"},{k:"예쁘다",e:"Pretty"},{k:"멋있다",e:"Cool/Stylish"},{k:"귀엽다",e:"Cute"},{k:"무섭다",e:"Scary"},{k:"재미있다",e:"Funny/Fun"},{k:"재미없다",e:"Boring"},{k:"피곤하다",e:"Tired"},{k:"바쁘다",e:"Busy"},{k:"깨끗하다",e:"Clean"},{k:"더럽다",e:"Dirty"},{k:"조용하다",e:"Quiet"},{k:"시끄럽다",e:"Noisy"},{k:"똑똑하다",e:"Smart"},{k:"위험하다",e:"Dangerous"},{k:"안전하다",e:"Safe"},{k:"중요하다",e:"Important"},{k:"부지런하다",e:"Diligent"},{k:"친절하다",e:"Kind"},{k:"가능하다",e:"Possible"},{k:"불가능하다",e:"Impossible"}
 ];
 
-const CHO=["ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
-const JUNG=["ㅏ","ㅑ","ㅓ","ㅕ","ㅗ","ㅛ","ㅜ","ㅠ","ㅡ","ㅣ"];
-const JONG=["","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ"];
+const CHOSUNG=["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+const JUNGSUNG=["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+const JONGSUNG=["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
 
-let sInit=null;
-let sVowel=null;
-let sBatch=null;
+const inits=[{k:'ㄱ',e:'g'},{k:'ㄴ',e:'n'},{k:'ㄷ',e:'d'},{k:'ㄹ',e:'r'},{k:'ㅁ',e:'m'},{k:'ㅂ',e:'b'},{k:'ㅅ',e:'s'},{k:'ㅇ',e:'-'},{k:'ㅈ',e:'j'},{k:'ㅊ',e:'ch'},{k:'ㅋ',e:'k'},{k:'ㅌ',e:'t'},{k:'ㅍ',e:'p'},{k:'ㅎ',e:'h'},{k:'ㄲ',e:'kk'},{k:'ㄸ',e:'tt'},{k:'ㅃ',e:'pp'},{k:'ㅆ',e:'ss'},{k:'ㅉ',e:'jj'}];
+const vows1=[{k:'ㅏ',e:'a'},{k:'ㅑ',e:'ya'},{k:'ㅓ',e:'eo'},{k:'ㅕ',e:'yeo'},{k:'ㅗ',e:'o'},{k:'ㅛ',e:'yo'},{k:'ㅜ',e:'u'},{k:'ㅠ',e:'yu'},{k:'ㅡ',e:'eu'},{k:'ㅣ',e:'i'}];
+const vowDouble=[{k:'ㅐ',e:'ae'},{k:'ㅒ',e:'yae'},{k:'ㅔ',e:'e'},{k:'ㅖ',e:'ye'}];
+const vowCombo=[{k:'ㅘ',e:'wa'},{k:'ㅙ',e:'wae'},{k:'ㅚ',e:'oe'},{k:'ㅝ',e:'wo'},{k:'ㅞ',e:'we'},{k:'ㅟ',e:'wi'},{k:'ㅢ',e:'ui'}];
+const batchPrimary=[{k:'ㄱ',e:'k'},{k:'ㄴ',e:'n'},{k:'ㄷ',e:'t'},{k:'ㄹ',e:'l'},{k:'ㅁ',e:'m'},{k:'ㅂ',e:'p'},{k:'ㅅ',e:'t'},{k:'ㅇ',e:'ng'},{k:'ㅈ',e:'t'},{k:'ㅊ',e:'t'},{k:'ㅋ',e:'k'},{k:'ㅌ',e:'t'},{k:'ㅍ',e:'p'},{k:'ㅎ',e:'t'}];
+const batchAdvanced=[{k:'ㄲ',e:'k'},{k:'ㅆ',e:'t'},{k:'ㄳ',e:'k'},{k:'ㄵ',e:'n'},{k:'ㄶ',e:'n'},{k:'ㄺ',e:'k'},{k:'ㄻ',e:'m'},{k:'ㄼ',e:'l'},{k:'ㄽ',e:'l'},{k:'ㄾ',e:'l'},{k:'ㄿ',e:'p'},{k:'ㅀ',e:'l'},{k:'ㅄ',e:'p'}];
+const vowelMap={'ㅏㅣ':'ㅐ','ㅑㅣ':'ㅒ','ㅓㅣ':'ㅔ','ㅕㅣ':'ㅖ','ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
+const vPronMap={'ㅏ':'a','ㅐ':'ae','ㅑ':'ya','ㅒ':'yae','ㅓ':'eo','ㅔ':'e','ㅕ':'yeo','ㅖ':'ye','ㅗ':'o','ㅘ':'wa','ㅙ':'wae','ㅚ':'oe','ㅛ':'yo','ㅜ':'u','ㅝ':'wo','ㅞ':'we','ㅟ':'wi','ㅠ':'yu','ㅡ':'eu','ㅢ':'ui','ㅣ':'i'};
 
-let sentence="";
+let sInit = null, sVow1 = null, sVowExtra = null, sBatch = null, sentence = "";
 
-function renderGrid(id,data,callback){
-
-const grid=document.getElementById(id);
-grid.innerHTML="";
-
-data.forEach(ch=>{
-const btn=document.createElement("div");
-btn.className="key";
-
-btn.innerHTML=`<span class="k-char">${ch}</span>`;
-
-btn.onclick=()=>{
-grid.querySelectorAll(".key").forEach(k=>k.classList.remove("selected"));
-btn.classList.add("selected");
-callback(ch);
-render();
-};
-
-grid.appendChild(btn);
-});
-
+function init() {
+    renderGrid("init-grid", inits, item => sInit = item);
+    renderGrid("vow1-grid", vows1, item => sVow1 = item);
+    renderGrid("vow-double-grid", vowDouble, item => sVowExtra = item);
+    renderGrid("vow-combo-grid", vowCombo, item => sVowExtra = item);
+    renderGrid("batch-primary-grid", batchPrimary, item => sBatch = item);
+    renderGrid("batch-advanced-grid", batchAdvanced, item => sBatch = item);
 }
 
-function render(){
-
-if(!sInit||!sVowel){
-document.getElementById("target-char").innerText="-";
-return;
+function renderGrid(id, data, onSelect) {
+    const grid = document.getElementById(id);
+    grid.innerHTML = "";
+    data.forEach(item => {
+        const btn = document.createElement("div");
+        btn.className = "key";
+        btn.innerHTML = `<span class="k-char">${item.k}</span><span class="e-pron">${item.e}</span>`;
+        btn.onclick = () => handleSelection(id, item, btn, onSelect);
+        grid.appendChild(btn);
+    });
 }
 
-const i=CHO.indexOf(sInit);
-const v=JUNG.indexOf(sVowel);
-const b=sBatch?JONG.indexOf(sBatch):0;
+function handleSelection(id, item, btn, onSelect) {
+    const isAlreadySelected = btn.classList.contains("selected");
+    
+    if(id.includes("batch")) {
+        document.querySelectorAll('[id^="batch-"] .key').forEach(k => k.classList.remove("selected"));
+    } else if(id === "vow-double-grid" || id === "vow-combo-grid") {
+        document.querySelectorAll('#vow-double-grid .key, #vow-combo-grid .key').forEach(k => k.classList.remove("selected"));
+    } else {
+        document.querySelectorAll(`#${id} .key`).forEach(k => k.classList.remove("selected"));
+    }
 
-const code=(i*21+v)*28+b+44032;
-
-const char=String.fromCharCode(code);
-
-document.getElementById("target-char").innerText=char;
-
+    if (isAlreadySelected) {
+        btn.classList.remove("selected");
+        if(id === "init-grid") sInit = null;
+        else if(id === "vow1-grid") sVow1 = null;
+        else if(id === "vow-double-grid" || id === "vow-combo-grid") sVowExtra = null;
+        else if(id.includes("batch")) sBatch = null;
+    } else {
+        btn.classList.add("selected");
+        onSelect(item);
+    }
+    render();
 }
 
-function addToSentence(){
-
-const char=document.getElementById("target-char").innerText;
-
-if(char==="-" )return;
-
-sentence+=char;
-
-updateSentenceUI();
-
+function updateSentenceUI() {
+    const box = document.getElementById("sentence-box");
+    const transBox = document.getElementById("translation-box");
+    
+    box.innerText = sentence || "Build your sentence...";
+    box.style.color = sentence ? "#2c3e50" : "#7f8c8d";
+    
+    // DB 매칭 확인 (가장 정확도가 높은 내부 검색)
+    const match = WORD_DB.find(w => w.k === sentence);
+    if (match) {
+        transBox.innerText = `Meaning: ${match.e}`;
+        transBox.style.color = "#27ae60";
+    } else if (sentence.length > 0) {
+        transBox.innerText = "Click '🌐 Full Translation' for accurate results!";
+        transBox.style.color = "#3498db";
+    } else {
+        transBox.innerText = "Translation will appear here";
+        transBox.style.color = "#7f8c8d";
+    }
 }
 
-function updateSentenceUI(){
-
-const box=document.getElementById("sentence-box");
-const transBox=document.getElementById("translation-box");
-
-box.innerText=sentence||"Build your sentence...";
-
-if(!sentence){
-transBox.innerText="Translation will appear here";
-return;
+function openTypingPrompt() {
+    // 요청하신 대로 팝업 문구 수정 (한글/영어 병기)
+    const message = "연습하고 싶은 한글 단어나 문장을 입력하세요.\n(Please type a Korean word or sentence you want to practice.)";
+    const input = prompt(message);
+    if (input && input.trim() !== "") {
+        sentence = input;
+        updateSentenceUI();
+        resetSelections();
+    }
 }
 
-const match=WORD_DB.find(w=>w.k===sentence);
-
-if(match){
-transBox.innerText="Meaning: "+match.e;
-return;
+function loadRandomWord() {
+    const word = WORD_DB[Math.floor(Math.random() * WORD_DB.length)];
+    sentence = word.k;
+    updateSentenceUI();
+    // 랜덤 단어인 경우 뜻을 바로 크게 표시
+    document.getElementById("translation-box").innerText = `Meaning: ${word.e}`;
+    resetSelections();
 }
 
-fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=ko|en`)
-.then(res=>res.json())
-.then(data=>{
-transBox.innerText="Meaning: "+data.responseData.translatedText;
-})
-.catch(()=>{
-transBox.innerText="(Translation unavailable)";
-});
-
+function openGoogleTranslate() {
+    if (!sentence || sentence === "") return;
+    // 1번 방식: 구글 번역 페이지 딥링크 연동
+    window.open(`https://translate.google.com/?sl=ko&tl=en&text=${encodeURIComponent(sentence)}&op=translate`, '_blank');
 }
 
-function loadRandomWord(){
-
-const word=WORD_DB[Math.floor(Math.random()*WORD_DB.length)];
-
-sentence=word.k;
-
-updateSentenceUI();
-
+function addToSentence() {
+    const char = document.getElementById("target-char").innerText;
+    if (char === "-" || char === "") return;
+    sentence += char;
+    updateSentenceUI();
+    resetSelections();
 }
 
-function openTypingPrompt(){
-
-const input=prompt("Type Korean word");
-
-if(!input)return;
-
-sentence=input;
-
-updateSentenceUI();
-
+function clearAll() {
+    if (sentence.length > 0 && confirm("문장을 모두 지우시겠습니까? (Clear all?)")) {
+        sentence = "";
+        updateSentenceUI();
+        resetSelections();
+    }
 }
 
-function speak(){
-
-const text=sentence;
-
-if(!text)return;
-
-const speech=new SpeechSynthesisUtterance(text);
-
-speech.lang="ko-KR";
-
-speech.rate=0.8;
-
-speechSynthesis.speak(speech);
-
+function resetVowels() {
+    sVowExtra = null;
+    document.querySelectorAll('#vow-double-grid .key, #vow-combo-grid .key').forEach(k => k.classList.remove("selected"));
+    render();
 }
 
-function openYouGlish(){
-
-if(!sentence)return;
-
-window.open(`https://youglish.com/pronounce/${sentence}/korean`);
-
+function resetGrid(prefix) {
+    if (prefix === 'batch-') {
+        sBatch = null;
+        document.querySelectorAll('[id^="batch-"] .key').forEach(k => k.classList.remove("selected"));
+    }
+    render();
 }
 
-function clearAll(){
-
-sentence="";
-
-updateSentenceUI();
-
+function resetSelections() {
+    sInit = sVow1 = sVowExtra = sBatch = null;
+    document.querySelectorAll('.key').forEach(k => k.classList.remove("selected"));
+    render();
 }
 
-renderGrid("init-grid",CHO,ch=>sInit=ch);
-renderGrid("vow-grid",JUNG,ch=>sVowel=ch);
-renderGrid("batch-grid",JONG,ch=>sBatch=ch);
+function getFinalVowel() {
+    if (!sVow1 && !sVowExtra) return { finalV: null };
+    if (sVow1 && sVowExtra) {
+        const combined = sVow1.k + sVowExtra.k;
+        if (vowelMap[combined]) return { finalV: vowelMap[combined] };
+    }
+    return { finalV: sVowExtra ? sVowExtra.k : sVow1.k };
+}
 
+function render() {
+    const targetChar = document.getElementById("target-char");
+    const targetPron = document.getElementById("target-pron-main");
+    const { finalV } = getFinalVowel();
+    
+    if (!sInit && !finalV) {
+        targetChar.innerText = "-";
+        targetPron.innerText = "-";
+        return;
+    }
+    if (!sInit || !finalV) {
+        targetChar.innerText = sInit ? sInit.k : finalV;
+        const rawPron = sInit ? sInit.e : (vPronMap[finalV] || "");
+        targetPron.innerText = rawPron.replace('-', '').toUpperCase() || "-";
+        return;
+    }
+    const vIndex = JUNGSUNG.indexOf(finalV);
+    const bIndex = sBatch ? JONGSUNG.indexOf(sBatch.k) : 0;
+    const iIndex = CHOSUNG.indexOf(sInit.k);
+    
+    const charCode = (iIndex * 21 + vIndex) * 28 + bIndex + 0xAC00;
+    const char = String.fromCharCode(charCode);
+    const iP = sInit.e === '-' ? '' : sInit.e;
+    const vP = vPronMap[finalV] || "";
+    const bP = sBatch ? sBatch.e : "";
+    
+    targetChar.innerText = char;
+    targetPron.innerText = (iP + vP + bP).toUpperCase();
+}
+
+function speak() {
+    const textToRead = sentence || document.getElementById("target-char").innerText;
+    if(textToRead === "-" || textToRead === "") return;
+    window.speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(textToRead);
+    speech.lang = "ko-KR";
+    speech.rate = 0.8;
+    window.speechSynthesis.speak(speech);
+}
+
+function openYouGlish() {
+    const query = sentence || document.getElementById("target-char").innerText;
+    if(query === "-" || query === "") return;
+    window.open(`https://youglish.com/pronounce/${encodeURIComponent(query)}/korean`, '_blank');
+}
+
+init();
 </script>
-
 </body>
 </html>
