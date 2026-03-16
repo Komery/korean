@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master</title>
+    <style>
+        :root { --primary: #2c3e50; --ai-purple: #6c5ce7; --accent: #e67e22; --success: #2ecc71; --bg: #f1f4f8; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: white; padding: 40px; border-radius: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center; width: 85%; max-width: 380px; border: 1px solid #eee; }
+        .login-box h2 { color: var(--primary); margin-bottom: 25px; font-size: 26px; font-weight: 800; }
+        .input-field { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #edf2f7; text-align: center; font-size: 16px; margin-bottom: 12px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        .input-field:focus { border-color: var(--ai-purple); box-shadow: 0 0 10px rgba(108, 92, 231, 0.1); }
+        .pw-btn { width: 100%; padding: 16px; border-radius: 15px; background: var(--ai-purple); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        
+        .container { display: none; width: 100%; max-width: 480px; background: white; padding: 30px; border-radius: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .display-grid { display: grid; gap: 15px; margin-bottom: 25px; }
+        .info-box { background: white; padding: 20px; border-radius: 25px; border: 2px solid #edf2f7; text-align: center; }
+        .box-label { font-size: 11px; color: #b2bec3; font-weight: bold; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+        .word-text { font-size: 30px; font-weight: 900; color: var(--primary); word-break: break-all; }
+        .pronunciation { font-family: monospace; color: var(--ai-purple); margin: 4px 0; font-size: 14px; }
+        .meaning { background: #fff3e0; color: var(--accent); padding: 4px 12px; border-radius: 10px; font-weight: 700; display: inline-block; margin-top: 5px; font-size: 14px; }
+        .synonym-highlight { font-size: 22px; color: var(--success); font-weight: 800; }
+        .example { margin-top: 12px; font-size: 14px; color: #636e72; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.5; }
+        .button-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .btn { padding: 14px; border: none; border-radius: 16px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; transition: 0.2s; }
+        .listen { background: var(--primary); }
+        .video { background: #e74c3c; }
+        .reset { background: #b2bec3; }
+        .generate { width: 100%; padding: 18px; border: none; border-radius: 18px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; font-size: 17px; font-weight: bold; cursor: pointer; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(108, 92, 231, 0.2); }
+        .input-section { border-top: 2px solid #f1f2f6; padding-top: 20px; }
+        .word-input { width: 100%; padding: 15px; border-radius: 16px; border: 2px solid #edf2f7; text-align: center; font-size: 16px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div id="login-overlay">
+    <div class="login-box">
+        <h2>🔒</h2>
+        <input type="text" id="id-field" class="input-field" placeholder="Username" autocomplete="off">
+        <input type="password" id="pw-field" class="input-field" placeholder="Password" onkeydown="if(event.key==='Enter'){checkLogin()}">
+        <button class="pw-btn" onclick="checkLogin()">Unlock System</button>
+        <p style="font-size: 11px; color: #aaa; margin-top: 20px; line-height: 1.4;">Authorized Personnel Only<br>© 2026 Military Career Prep</p>
+    </div>
+</div>
+
+<div class="container" id="main-content">
+    <div class="display-grid">
+        <div class="info-box">
+            <div class="box-label">WORD</div>
+            <div id="word" class="word-text">-</div>
+            <div id="pron" class="pronunciation">/ - /</div>
+            <div id="mean" class="meaning">READY</div>
+        </div>
+        <div class="info-box">
+            <div class="box-label">SYNONYM</div>
+            <div id="syn" class="synonym-highlight">-</div>
+            <div id="synpron" class="pronunciation" style="color:var(--success)">/ - /</div>
+            <div id="synmean" class="syn-mean" style="color:var(--accent); font-weight:700; font-size:14px;"></div>
+            <div id="example" class="example">전체 170+ 단어가 준비되었습니다.</div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn listen" onclick="speak()">🔊 Listen</button>
+        <button class="btn video" onclick="openYouGlish()">📺 Video</button>
+        <button class="btn reset" onclick="resetAll()">Reset</button>
+    </div>
+
+    <button class="generate" onclick="randomWord()">✨ NEXT ASVAB WORD</button>
+
+    <div class="input-section">
+        <input id="input" class="word-input" placeholder="Type a word and press Enter" onkeydown="if(event.key==='Enter'){lookup()}">
+    </div>
+</div>
+
+<script>
+
+    const _0x1a2b = "UklDSA=="; 
+    const _0x3c4d = "MjAyNlEx";
+
+    function checkLogin() {
+        const idInput = document.getElementById("id-field").value.trim().toUpperCase();
+        const pwInput = document.getElementById("pw-field").value;
+
+        
+        if(btoa(idInput) === _0x1a2b && btoa(pwInput) === _0x3c4d) {
+            document.getElementById("login-overlay").style.display = "none";
+            document.getElementById("main-content").style.display = "block";
+        } else {
+            alert("Login Failed! Please check ID or PW.");
+            document.getElementById("pw-field").value = "";
+        }
+    }
+
+    const DATA = [
+        {w:"emphasize", s:"accentuate", ex:"You should emphasize key points in your presentation."},
+        {w:"quarantine", s:"isolate", ex:"The doctor ordered him to quarantine for ten days."},
+        {w:"grand", s:"magnificent", ex:"The hotel lobby was grand and luxurious."},
+        {w:"solitary", s:"alone", ex:"He lived a solitary life in the mountains."},
+        {w:"defeated", s:"beaten", ex:"The defeated team left the field quietly."},
+        {w:"agenda", s:"list of things to be done", ex:"She prepared the agenda for the meeting."},
+        {w:"harbor", s:"sheltered", ex:"They harbored abandoned cats in the barn."},
+        {w:"prosper", s:"thrive", ex:"The small business began to prosper in the new location."},
+        {w:"eradicate", s:"eliminate", ex:"His job was to eradicate all pests from the building."},
+        {w:"appraise", s:"judge value of", ex:"His job is to appraise the value of the jewels."},
+        {w:"stern", s:"strict", ex:"The teacher gave a stern warning to the students."},
+        {w:"mimic", s:"imitate", ex:"Parrots can mimic human speech very accurately."},
+        {w:"prestige", s:"status", ex:"Winning the award brought him great prestige."},
+        {w:"frolic", s:"play", ex:"Lambs frolic in the fields in springtime."},
+        {w:"durable", s:"resilient", ex:"Durable boots survive tough outdoor conditions."},
+        {w:"perilous", s:"hazardous", ex:"We will long remember our perilous journey."},
+        {w:"complexity", s:"intricacy", ex:"The complexity of the puzzle made it hard to solve."},
+        {w:"infuriate", s:"enrage", ex:"Rude behavior can infuriate even the calmest people."},
+        {w:"surplus", s:"excess", ex:"The store had a surplus of winter coats in spring."},
+        {w:"adage", s:"proverb", ex:"'Better late than never' is a well-known adage."},
+        {w:"abundant", s:"plentiful", ex:"The region has abundant natural resources."},
+        {w:"dense", s:"thick", ex:"Dense fog makes it hard to see ahead."},
+        {w:"keen", s:"sharp", ex:"A keen sense of smell detects subtle scents."},
+        {w:"meticulous", s:"precise", ex:"Surgeons must be meticulous in their work."},
+        {w:"fortitude", s:"courage", ex:"Soldiers show fortitude under fire."},
+        {w:"deploy", s:"position", ex:"Units deploy to assigned locations strategically."},
+        {w:"adversary", s:"opponent", ex:"Military forces face adversaries in conflict."},
+        {w:"reconnaissance", s:"observation", ex:"Scouts conduct reconnaissance before attacks."},
+        {w:"vicinity", s:"surrounding area", ex:"Enemy forces operate in the vicinity."},
+        {w:"obsolete", s:"outdated", ex:"Obsolete equipment gets replaced with new technology."},
+        {w:"mandate", s:"official order", ex:"The mandate requires compliance from all personnel."},
+        {w:"liaison", s:"communicator", ex:"The liaison coordinates joint operations."},
+        {w:"neutralize", s:"make harmless", ex:"Bomb squads neutralize explosive devices."},
+        {w:"perimeter", s:"outer boundary", ex:"Guards patrol the perimeter at night."},
+        {w:"jurisdiction", s:"official power", ex:"Courts have jurisdiction over legal cases."},
+        {w:"infantry", s:"foot soldiers", x:"Infantry units advance across difficult terrain."},
+        {w:"garrison", s:"military post", ex:"The garrison protects the border from intrusion."},
+        {w:"evacuate", s:"remove from danger", ex:"Officials evacuate residents before hurricanes."},
+        {w:"cipher", s:"code", ex:"Cipher systems protect classified messages."},
+        {w:"allocate", s:"distribute", ex:"Commanders allocate supplies to their units."},
+        {w:"brief", s:"short", ex:"A brief meeting lasts only a few minutes."},
+        {w:"calm", s:"peaceful", ex:"A calm person stays relaxed in stressful situations."},
+        {w:"eager", s:"excited", ex:"An eager student raises their hand first."},
+        {w:"genuine", s:"authentic", ex:"A genuine smile shows true happiness."},
+        {w:"harsh", s:"severe", ex:"Harsh weather can damage crops quickly."},
+        {w:"idle", s:"not active", ex:"An idle machine sits without running."},
+        {w:"loyal", s:"faithful", ex:"A loyal friend stands by you always."},
+        {w:"modest", s:"humble", ex:"A modest person doesn't brag about achievements."},
+        {w:"prompt", s:"on time", ex:"A prompt response arrives quickly."},
+        {w:"rigid", s:"stiff", ex:"A rigid board doesn't bend easily."},
+        {w:"swift", s:"fast", ex:"A swift runner finishes first."},
+        {w:"timid", s:"shy", ex:"A timid speaker avoids eye contact."},
+        {w:"vacant", s:"empty", ex:"A vacant seat has nobody sitting there."},
+        {w:"weary", s:"tired", ex:"Weary travelers need rest after long trips."},
+        {w:"zeal", s:"energy", ex:"Workers show zeal for their projects."},
+        {w:"frugal", s:"careful with money", ex:"Frugal shoppers look for deals."},
+        {w:"benevolent", s:"kind", ex:"A benevolent leader helps those in need."},
+        {w:"candid", s:"honest", ex:"Candid feedback points out flaws directly."},
+        {w:"feasible", s:"possible", ex:"A feasible plan can actually work."},
+        {w:"hamper", s:"hinder", ex:"Bad weather can hamper construction work."},
+        {w:"impartial", s:"fair", ex:"An impartial judge treats everyone equally."},
+        {w:"prudent", s:"wise", ex:"Prudent investors research before buying."},
+        {w:"scrutinize", s:"examine closely", ex:"Editors scrutinize manuscripts for errors."},
+        {w:"ubiquitous", s:"present everywhere", ex:"Smartphones are ubiquitous in modern society."},
+        {w:"volatile", s:"unstable", ex:"Volatile markets fluctuate rapidly."},
+        {w:"astute", s:"perceptive", ex:"Astute observers notice small details."}
+    ];
+
+    function ipa(word) {
+        if(!word || word === "-" || word.length > 20) return "/ - /";
+        return "/" + word.toLowerCase()
+            .replace(/a/g,"æ").replace(/e/g,"e").replace(/i/g,"ɪ")
+            .replace(/o/g,"ɒ").replace(/u/g,"ʌ") + "/";
+    }
+
+    async function translate(word) {
+        if(!word || word === "-" || word.length < 2) return "";
+        try {
+            let r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=" + encodeURIComponent(word));
+            let d = await r.json();
+            return d[0][0][0];
+        } catch { return "번역 오류"; }
+    }
+
+    async function show(data) {
+        document.getElementById("word").innerText = data.w;
+        document.getElementById("pron").innerText = ipa(data.w);
+        document.getElementById("syn").innerText = data.s;
+        document.getElementById("synpron").innerText = ipa(data.s);
+        document.getElementById("example").innerText = data.ex;
+
+        translate(data.w).then(t => document.getElementById("mean").innerText = t);
+        translate(data.s).then(t => document.getElementById("synmean").innerText = t);
+    }
+
+    function randomWord() {
+        let r = DATA[Math.floor(Math.random() * DATA.length)];
+        show(r);
+    }
+
+    async function lookup() {
+        let inputEl = document.getElementById("input");
+        let w = inputEl.value.trim();
+        if(!w) return;
+        document.getElementById("word").innerText = w;
+        document.getElementById("pron").innerText = ipa(w);
+        translate(w).then(t => document.getElementById("mean").innerText = t);
+        document.getElementById("syn").innerText = "-";
+        document.getElementById("synpron").innerText = "/ - /";
+        document.getElementById("synmean").innerText = "";
+        document.getElementById("example").innerText = "Search result from dictionary.";
+        inputEl.value = "";
+    }
+
+    function speak() {
+        let w = document.getElementById("word").innerText;
+        if(w == "-") return;
+        speechSynthesis.cancel();
+        let u = new SpeechSynthesisUtterance(w);
+        u.lang = "en-US";
+        speechSynthesis.speak(u);
+    }
+
+    function openYouGlish() {
+        let w = document.getElementById("word").innerText;
+        if(w == "-") return;
+        window.open("https://youglish.com/pronounce/" + w + "/english");
+    }
+
+    function resetAll() {
+        document.getElementById("word").innerText = "-";
+        document.getElementById("pron").innerText = "/ - /";
+        document.getElementById("mean").innerText = "READY";
+        document.getElementById("syn").innerText = "-";
+        document.getElementById("synpron").innerText = "/ - /";
+        document.getElementById("synmean").innerText = "";
+        document.getElementById("example").innerText = "전체 170+ 단어가 준비되었습니다.";
+        document.getElementById("input").value = "";
+    }
+</script>
+
+</body>
+</html>
