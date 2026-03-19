@@ -3,100 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master</title>
+    <title>Master ASVAB V2.7</title>
     <style>
-        :root { --primary: #2c3e50; --ai-purple: #6c5ce7; --accent: #e67e22; --success: #2ecc71; --bg: #f1f4f8; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        
-        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        .login-box { background: white; padding: 40px; border-radius: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center; width: 85%; max-width: 380px; border: 1px solid #eee; }
-        .login-box h2 { color: var(--primary); margin-bottom: 25px; font-size: 26px; font-weight: 800; }
-        .input-field { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #edf2f7; text-align: center; font-size: 16px; margin-bottom: 12px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        .input-field:focus { border-color: var(--ai-purple); box-shadow: 0 0 10px rgba(108, 92, 231, 0.1); }
-        .pw-btn { width: 100%; padding: 16px; border-radius: 15px; background: var(--ai-purple); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        
-        .container { display: none; width: 100%; max-width: 480px; background: white; padding: 30px; border-radius: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        :root { 
+            --primary: #1e293b; --ai-purple: #6366f1; --accent: #f59e0b; 
+            --success: #10b981; --error: #ef4444; --bg: #0f172a; --card-bg: #ffffff;
+        }
 
-        .display-grid { display: grid; gap: 15px; margin-bottom: 25px; }
-        .info-box { background: white; padding: 20px; border-radius: 25px; border: 2px solid #edf2f7; text-align: center; }
-        .box-label { font-size: 11px; color: #b2bec3; font-weight: bold; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
-        .word-text { font-size: 30px; font-weight: 900; color: var(--primary); word-break: break-all; }
-        .pronunciation { font-family: monospace; color: var(--ai-purple); margin: 4px 0; font-size: 14px; }
-        .meaning { background: #fff3e0; color: var(--accent); padding: 4px 12px; border-radius: 10px; font-weight: 700; display: inline-block; margin-top: 5px; font-size: 14px; }
-        .synonym-highlight { font-size: 22px; color: var(--success); font-weight: 800; }
-        .example { margin-top: 12px; font-size: 14px; color: #636e72; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.5; }
-        .button-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn { padding: 14px; border: none; border-radius: 16px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; transition: 0.2s; }
-        .listen { background: var(--primary); }
-        .video { background: #e74c3c; }
-        .reset { background: #b2bec3; }
-        .generate { width: 100%; padding: 18px; border: none; border-radius: 18px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; font-size: 17px; font-weight: bold; cursor: pointer; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(108, 92, 231, 0.2); }
-        .input-section { border-top: 2px solid #f1f2f6; padding-top: 20px; }
-        .word-input { width: 100%; padding: 15px; border-radius: 16px; border: 2px solid #edf2f7; text-align: center; font-size: 16px; box-sizing: border-box; }
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; justify-content: center; align-items: center; color: #334155;
+        }
+
+        #device-selector { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; color: white; }
+        .dev-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 30px; border-radius: 20px; cursor: pointer; transition: 0.3s; width: 140px; margin: 10px; text-align: center; }
+        .dev-btn:hover { background: var(--ai-purple); transform: translateY(-5px); }
+
+        #login-overlay { position: fixed; inset:0; background: rgba(15, 23, 42, 0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: white; padding: 40px; border-radius: 30px; width: 320px; text-align: center; }
+        .input-field { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        .pw-btn { width: 100%; padding: 12px; background: var(--ai-purple); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+
+        .container { display: none; width: 95%; max-width: 450px; background: var(--card-bg); padding: 30px; border-radius: 35px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .mode-pc { max-width: 900px !important; display: flex !important; flex-direction: column; align-items: center; }
+        .mode-pc .display-grid { width: 100%; max-width: 750px; }
+        .mode-pc .word-text { font-size: 60px; }
+        .mode-pc .btn { padding: 8px 15px; font-size: 12px; }
+
+        .info-box { background: #f8fafc; padding: 30px 20px; border-radius: 25px; border: 1px solid #e2e8f0; text-align: center; margin-bottom: 15px; position: relative; }
+        .box-label { font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 2px; margin-bottom: 15px; text-transform: uppercase; }
+        .word-text { font-size: 42px; font-weight: 900; color: var(--primary); letter-spacing: -2px; }
+        .meaning { background: #fee2e2; color: #b91c1c; padding: 5px 15px; border-radius: 10px; font-weight: 700; font-size: 16px; margin-top: 10px; display: inline-block; }
+        .synonym-highlight { font-size: 28px; color: var(--success); font-weight: 800; }
+        .example { margin-top: 20px; font-size: 15px; color: #64748b; line-height: 1.6; max-width: 550px; margin: 20px auto 0; }
+
+        /* 개별 스피커 버튼 스타일 */
+        .speaker-btn { 
+            position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; 
+            border-radius: 50%; width: 35px; height: 35px; cursor: pointer; color: #64748b; 
+            transition: 0.2s; display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .speaker-btn:hover { background: var(--ai-purple); color: white; }
+
+        .button-group { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .btn { border: none; border-radius: 12px; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; padding: 10px 20px; }
+        .video { background: #ef4444; } .reset { background: #94a3b8; }
+
+        .action-group { width: 100%; max-width: 500px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .generate { padding: 18px; border: none; border-radius: 15px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; font-size: 16px; font-weight: 800; cursor: pointer; }
+        .quiz-start { padding: 18px; border: none; border-radius: 15px; background: var(--accent); color: white; font-size: 16px; font-weight: 800; cursor: pointer; }
+
+        #quiz-area { display: none; width: 100%; max-width: 700px; padding: 25px; border-radius: 25px; background: #fffbeb; border: 2px solid #fcd34d; margin-bottom: 20px; box-sizing: border-box;}
+        .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .opt-btn { padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600; }
+        
+        #feedback-box { display: none; margin-top: 20px; }
+        .split-feedback { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .f-card { padding: 15px; border-radius: 15px; font-size: 14px; }
+        .f-mine { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; }
+        .f-ans { background: #d1fae5; border: 1px solid #10b981; color: #065f46; }
+        .next-quiz-btn { width: 100%; margin-top: 15px; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 800; }
+
+        .word-input { width: 100%; max-width: 500px; padding: 15px; border-radius: 15px; border: 2px solid #e2e8f0; text-align: center; }
     </style>
 </head>
 <body>
 
+<div id="device-selector">
+    <h2>Select Experience</h2>
+    <div style="display:flex">
+        <div class="dev-btn" onclick="selectDevice('pc')">💻 PC</div>
+        <div class="dev-btn" onclick="selectDevice('mobile')">📱 Mobile</div>
+    </div>
+</div>
+
 <div id="login-overlay">
     <div class="login-box">
-        <h2>🔒</h2>
-        <input type="text" id="id-field" class="input-field" placeholder="Username" autocomplete="off">
+        <h2>SECURITY CHECK</h2>
+        <input type="text" id="id-field" class="input-field" placeholder="Username">
         <input type="password" id="pw-field" class="input-field" placeholder="Password" onkeydown="if(event.key==='Enter'){checkLogin()}">
-        <button class="pw-btn" onclick="checkLogin()">Unlock System</button>
-        <p style="font-size: 11px; color: #aaa; margin-top: 20px; line-height: 1.4;">Authorized Personnel Only<br>© 2026 Military Career Prep</p>
+        <button class="pw-btn" onclick="checkLogin()">UNLOCK</button>
     </div>
 </div>
 
 <div class="container" id="main-content">
     <div class="display-grid">
-        <div class="info-box">
-            <div class="box-label">WORD</div>
+        <div class="info-box" style="background:white; border-width:2px;">
+            <button class="speaker-btn" onclick="speak('word')">🔊</button>
+            <div class="box-label">Target Word</div>
             <div id="word" class="word-text">-</div>
-            <div id="pron" class="pronunciation">/ - /</div>
+            <div id="pron" style="color:var(--ai-purple); margin: 5px 0; font-family: monospace;">/ - /</div>
             <div id="mean" class="meaning">READY</div>
         </div>
         <div class="info-box">
-            <div class="box-label">SYNONYM</div>
+            <button class="speaker-btn" onclick="speak('syn')">🔊</button>
+            <div class="box-label">Synonym & Context</div>
             <div id="syn" class="synonym-highlight">-</div>
-            <div id="synpron" class="pronunciation" style="color:var(--success)">/ - /</div>
-            <div id="synmean" class="syn-mean" style="color:var(--accent); font-weight:700; font-size:14px;"></div>
-            <div id="example" class="example">전체 170+ 단어가 준비되었습니다.</div>
+            <div id="synmean" style="color:var(--accent); font-weight:700; margin-bottom:5px;"></div>
+            <div id="example" class="example">Start by clicking NEXT WORD.</div>
+        </div>
+    </div>
+
+    <div id="quiz-area">
+        <div id="quiz-q-label" style="text-align:center; font-weight:bold; color:#b45309; margin-bottom:10px;">📝 VOCAB TEST</div>
+        <div class="quiz-options" id="q-options"></div>
+        <div id="feedback-box">
+            <div class="split-feedback" id="split-box">
+                <div class="f-card f-mine" id="mine-info"></div>
+                <div class="f-card f-ans" id="ans-info"></div>
+            </div>
+            <button class="next-quiz-btn" id="next-q-btn" onclick="startQuiz()">NEXT QUIZ (Enter)</button>
         </div>
     </div>
 
     <div class="button-group">
-        <button class="btn listen" onclick="speak()">🔊 Listen</button>
-        <button class="btn video" onclick="openYouGlish()">📺 Video</button>
+        <button class="btn video" onclick="openYouGlish()">📺 YouGlish Video</button>
         <button class="btn reset" onclick="resetAll()">Reset</button>
     </div>
 
-    <button class="generate" onclick="randomWord()">✨ NEXT ASVAB WORD</button>
-
-    <div class="input-section">
-        <input id="input" class="word-input" placeholder="Type a word and press Enter" onkeydown="if(event.key==='Enter'){lookup()}">
+    <div class="action-group">
+        <button class="generate" onclick="randomWord()">NEXT WORD ✨</button>
+        <button class="quiz-start" onclick="startQuiz()">QUIZ MODE</button>
     </div>
+
+    <input id="input" class="word-input" placeholder="Search word..." onkeydown="if(event.key==='Enter'){lookup()}">
 </div>
 
 <script>
-
     const _0x1a2b = "UklDSA=="; 
     const _0x3c4d = "MjAyNlEx";
-
-    function checkLogin() {
-        const idInput = document.getElementById("id-field").value.trim().toUpperCase();
-        const pwInput = document.getElementById("pw-field").value;
-
-        
-        if(btoa(idInput) === _0x1a2b && btoa(pwInput) === _0x3c4d) {
-            document.getElementById("login-overlay").style.display = "none";
-            document.getElementById("main-content").style.display = "block";
-        } else {
-            alert("Login Failed! Please check ID or PW.");
-            document.getElementById("pw-field").value = "";
-        }
-    }
-
     const DATA = [
         {w:"emphasize", s:"accentuate", ex:"You should emphasize key points in your presentation."},
         {w:"quarantine", s:"isolate", ex:"The doctor ordered him to quarantine for ten days."},
@@ -133,7 +170,7 @@
         {w:"neutralize", s:"make harmless", ex:"Bomb squads neutralize explosive devices."},
         {w:"perimeter", s:"outer boundary", ex:"Guards patrol the perimeter at night."},
         {w:"jurisdiction", s:"official power", ex:"Courts have jurisdiction over legal cases."},
-        {w:"infantry", s:"foot soldiers", x:"Infantry units advance across difficult terrain."},
+        {w:"infantry", s:"foot soldiers", ex:"Infantry units advance across difficult terrain."},
         {w:"garrison", s:"military post", ex:"The garrison protects the border from intrusion."},
         {w:"evacuate", s:"remove from danger", ex:"Officials evacuate residents before hurricanes."},
         {w:"cipher", s:"code", ex:"Cipher systems protect classified messages."},
@@ -166,75 +203,131 @@
         {w:"astute", s:"perceptive", ex:"Astute observers notice small details."}
     ];
 
-    function ipa(word) {
-        if(!word || word === "-" || word.length > 20) return "/ - /";
-        return "/" + word.toLowerCase()
-            .replace(/a/g,"æ").replace(/e/g,"e").replace(/i/g,"ɪ")
-            .replace(/o/g,"ɒ").replace(/u/g,"ʌ") + "/";
+    function selectDevice(mode) {
+        if(mode === 'pc') document.getElementById('main-content').classList.add('mode-pc');
+        document.getElementById('device-selector').style.display = 'none';
+        document.getElementById('login-overlay').style.display = 'flex';
+    }
+
+    function checkLogin() {
+        const id = document.getElementById("id-field").value.trim().toUpperCase();
+        const pw = document.getElementById("pw-field").value;
+        if(btoa(id) === _0x1a2b && btoa(pw) === _0x3c4d) {
+            document.getElementById("login-overlay").style.display = "none";
+            document.getElementById("main-content").style.display = document.getElementById('main-content').classList.contains('mode-pc') ? 'flex' : 'block';
+        } else { alert("Access Denied"); }
+    }
+
+    function getIPA(w) {
+        if(!w || w === "-" || w === "?") return "/ - /";
+        return "/" + w.toLowerCase().replace(/a/g,"æ").replace(/e/g,"e").replace(/i/g,"ɪ").replace(/o/g,"ɒ").replace(/u/g,"ʌ") + "/";
     }
 
     async function translate(word) {
-        if(!word || word === "-" || word.length < 2) return "";
+        if(!word || word === "-" || word === "?") return "";
         try {
-            let r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=" + encodeURIComponent(word));
-            let d = await r.json();
-            return d[0][0][0];
-        } catch { return "번역 오류"; }
+            let r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${encodeURIComponent(word)}`);
+            let d = await r.json(); return d[0][0][0];
+        } catch { return "Error"; }
     }
 
     async function show(data) {
+        document.getElementById("quiz-area").style.display = "none";
         document.getElementById("word").innerText = data.w;
-        document.getElementById("pron").innerText = ipa(data.w);
+        document.getElementById("pron").innerText = getIPA(data.w);
         document.getElementById("syn").innerText = data.s;
-        document.getElementById("synpron").innerText = ipa(data.s);
         document.getElementById("example").innerText = data.ex;
-
         translate(data.w).then(t => document.getElementById("mean").innerText = t);
         translate(data.s).then(t => document.getElementById("synmean").innerText = t);
     }
 
-    function randomWord() {
-        let r = DATA[Math.floor(Math.random() * DATA.length)];
-        show(r);
-    }
+    function randomWord() { show(DATA[Math.floor(Math.random() * DATA.length)]); }
 
-    async function lookup() {
-        let inputEl = document.getElementById("input");
-        let w = inputEl.value.trim();
-        if(!w) return;
-        document.getElementById("word").innerText = w;
-        document.getElementById("pron").innerText = ipa(w);
-        translate(w).then(t => document.getElementById("mean").innerText = t);
-        document.getElementById("syn").innerText = "-";
-        document.getElementById("synpron").innerText = "/ - /";
+    let currentQ = null;
+    async function startQuiz() {
+        document.getElementById("quiz-area").style.display = "block";
+        document.getElementById("feedback-box").style.display = "none";
+        currentQ = DATA[Math.floor(Math.random() * DATA.length)];
+        
+        document.getElementById("word").innerText = currentQ.w;
+        document.getElementById("pron").innerText = getIPA(currentQ.w);
+        const qMean = await translate(currentQ.w);
+        document.getElementById("mean").innerText = qMean;
+        document.getElementById("syn").innerText = "?";
         document.getElementById("synmean").innerText = "";
-        document.getElementById("example").innerText = "Search result from dictionary.";
-        inputEl.value = "";
+        document.getElementById("example").innerText = "동의어를 고르세요.";
+
+        let opts = [currentQ.s];
+        while(opts.length < 4) {
+            let rs = DATA[Math.floor(Math.random() * DATA.length)].s;
+            if(!opts.includes(rs)) opts.push(rs);
+        }
+        opts.sort(() => Math.random() - 0.5);
+
+        const container = document.getElementById("q-options");
+        container.innerHTML = "";
+        opts.forEach(o => {
+            let btn = document.createElement("button");
+            btn.className = "opt-btn";
+            btn.innerText = o;
+            btn.onclick = () => checkQuiz(o);
+            container.appendChild(btn);
+        });
     }
 
-    function speak() {
-        let w = document.getElementById("word").innerText;
-        if(w == "-") return;
+    async function checkQuiz(selected) {
+        const fbBox = document.getElementById("feedback-box");
+        const mine = document.getElementById("mine-info");
+        const ans = document.getElementById("ans-info");
+        const split = document.getElementById("split-box");
+
+        const selMean = await translate(selected);
+        const ansMean = await translate(currentQ.s);
+        const selObj = DATA.find(d => d.w === selected || d.s === selected);
+        const selSynonym = selObj ? (selObj.w === selected ? selObj.s : selObj.w) : "Not in DB";
+
+        if(selected === currentQ.s) {
+            fbBox.style.display = "block";
+            split.style.gridTemplateColumns = "1fr";
+            mine.style.display = "none";
+            ans.className = "f-card f-ans";
+            ans.innerHTML = `<b>Correct! 👏</b><br>정답: ${currentQ.s}<br>뜻: ${ansMean}`;
+            setTimeout(startQuiz, 2500);
+        } else {
+            fbBox.style.display = "block";
+            split.style.gridTemplateColumns = "1fr 1fr";
+            mine.style.display = "block";
+            mine.innerHTML = `<b>Your Choice</b><br>단어: ${selected}<br>뜻: ${selMean}<br>유의어: ${selSynonym}`;
+            ans.innerHTML = `<b>Correct Answer</b><br>단어: ${currentQ.s}<br>뜻: ${ansMean}<br>유의어: ${currentQ.w}`;
+            document.getElementById("next-q-btn").focus();
+        }
+    }
+
+    window.onkeydown = (e) => {
+        if(e.key === 'Enter' && document.getElementById("feedback-box").style.display === "block") startQuiz();
+    };
+
+    // 발음 함수 수정: type 인자를 받아 word 혹은 syn을 발음
+    function speak(type) {
+        let text = document.getElementById(type).innerText;
+        if(text === "-" || text === "?") return;
         speechSynthesis.cancel();
-        let u = new SpeechSynthesisUtterance(w);
+        let u = new SpeechSynthesisUtterance(text);
         u.lang = "en-US";
         speechSynthesis.speak(u);
     }
 
     function openYouGlish() {
         let w = document.getElementById("word").innerText;
-        if(w == "-") return;
-        window.open("https://youglish.com/pronounce/" + w + "/english");
+        if(w !== "-" && w !== "?") window.open("https://youglish.com/pronounce/" + w + "/english");
     }
 
-    function resetAll() {
-        document.getElementById("word").innerText = "-";
-        document.getElementById("pron").innerText = "/ - /";
-        document.getElementById("mean").innerText = "READY";
-        document.getElementById("syn").innerText = "-";
-        document.getElementById("synpron").innerText = "/ - /";
-        document.getElementById("synmean").innerText = "";
-        document.getElementById("example").innerText = "전체 170+ 단어가 준비되었습니다.";
+    function resetAll() { location.reload(); }
+
+    function lookup() {
+        let w = document.getElementById("input").value.trim();
+        if(!w) return;
+        show({w:w, s:"-", ex:"Dictionary Result"});
         document.getElementById("input").value = "";
     }
 </script>
